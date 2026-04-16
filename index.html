@@ -1079,6 +1079,8 @@ function renderDash(){
   const rec=soma(tm,'receita'),des=soma(tm,'despesa'),sal=rec-des;
   const taxa=rec>0?Math.round((des/rec)*100):0;
   document.getElementById('mes-label').textContent=MESES_S[mesMes]+' '+mesAno;
+  const mobLabel=document.getElementById('mes-label-mob');
+  if(mobLabel)mobLabel.textContent=MESES_S[mesMes]+' '+mesAno;
   document.getElementById('dash-sub').textContent=MESES[mesMes]+' de '+mesAno;
   document.getElementById('tx-sub').textContent=MESES[mesMes]+' de '+mesAno;
   const {catMap,disparados}=checkAlertas();
