@@ -378,7 +378,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <option value="debito">Débito</option>
       <option value="credito">Crédito</option>
     </select>
+    <select class="form-input" id="filtro-cartao" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
+      <option value="todos">Todos os cartões</option>
+      <option value="visa_bradesco">Visa Bradesco</option>
+      <option value="master_nubank">Master Nubank</option>
+    </select>
   </div>
+  <div id="tx-cartao-resumo" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap"></div>
   <div class="panel" style="padding:0 18px"><div id="tx-list"></div></div>
 </div>
 
@@ -1022,8 +1028,38 @@ function renderRanking(cats,total){
 function renderTxs(){
   const cat=document.getElementById('filtro-cat').value||'todas';
   const pag=document.getElementById('filtro-pag').value||'todos';
+  const cartaoFiltro=document.getElementById('filtro-cartao')?.value||'todos';
   const tm=txsMes();
-  let list=tm.filter(t=>(filtroTipo==='todos'||t.tipo===filtroTipo)&&(cat==='todas'||t.categoria===cat)&&(pag==='todos'||t.forma_pagamento===pag));
+
+  // Resumo por cartão
+  const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const debVal=tm.filter(t=>t.forma_pagamento==='debito'&&t.cartao!=='visa_bradesco'&&t.cartao!=='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const resumoEl=document.getElementById('tx-cartao-resumo');
+  if(resumoEl){
+    resumoEl.innerHTML=[
+      {label:'Visa Bradesco',val:visaVal,cor:'#5b9cf6',key:'visa_bradesco'},
+      {label:'Master Nubank',val:masterVal,cor:'#f96b6b',key:'master_nubank'},
+      {label:'PIX',val:pixVal,cor:'#2dd4a0',key:'pix_resumo'},
+    ].filter(r=>r.val>0).map(r=>`
+      <div onclick="filtrarCartao('${r.key}')" style="background:var(--bg2);border:1px solid ${cartaoFiltro===r.key||pag===r.key?r.cor:'var(--border)'};border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;transition:all .15s;flex:1;min-width:120px">
+        <div style="font-size:10px;color:${r.cor};margin-bottom:3px;font-weight:500">${r.label}</div>
+        <div style="font-size:15px;font-weight:600;font-family:'DM Mono',monospace">${fmt(r.val)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">em despesas</div>
+      </div>`).join('');
+  }
+
+  let list=tm.filter(t=>{
+    const matchTipo=filtroTipo==='todos'||t.tipo===filtroTipo;
+    const matchCat=cat==='todas'||t.categoria===cat;
+    const matchPag=pag==='todos'||t.forma_pagamento===pag;
+    const matchCartao=cartaoFiltro==='todos'||
+      (cartaoFiltro==='visa_bradesco'&&t.cartao==='visa_bradesco')||
+      (cartaoFiltro==='master_nubank'&&t.cartao==='master_nubank')||
+      (cartaoFiltro==='pix_resumo'&&t.forma_pagamento==='pix');
+    return matchTipo&&matchCat&&matchPag&&matchCartao;
+  });
   list.sort((a,b)=>new Date(b.data)-new Date(a.data));
   const el=document.getElementById('tx-list');
   if(!list.length){el.innerHTML='<div class="empty">Nenhuma transação</div>';return;}
@@ -1054,6 +1090,20 @@ function renderTxs(){
   const cur=sel.value;
   sel.innerHTML='<option value="todas">Todas categorias</option>'+allCats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
 }
+function filtrarCartao(key){
+  const sel=document.getElementById('filtro-cartao');
+  const pagSel=document.getElementById('filtro-pag');
+  if(!sel||!pagSel)return;
+  if(key==='pix_resumo'){
+    pagSel.value='pix';
+    sel.value='todos';
+  } else {
+    sel.value=sel.value===key?'todos':key;
+    pagSel.value='todos';
+  }
+  renderTxs();
+}
+
 function setFiltro(tipo,btn){filtroTipo=tipo;document.querySelectorAll('.tx-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTxs();}
 async function delTx(id){
   if(!confirm('Remover esta transação?'))return;
