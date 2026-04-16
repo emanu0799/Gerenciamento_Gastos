@@ -182,56 +182,80 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+/* ── TABLET (iPad) ─────────────────────────── */
+@media(min-width:769px) and (max-width:1024px){
+  .sidebar{width:180px}
+  .main{margin-left:180px;padding:20px}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .metric-row{grid-template-columns:repeat(2,1fr)}
+  .nav-item{font-size:12px;padding:8px 14px}
+  .logo{font-size:13px;padding:0 14px 18px}
+}
+/* ── MOBILE ─────────────────────────────────── */
 @media(max-width:768px){
   .sidebar{display:none}
-  .main{margin-left:0;padding:12px}
+  .main{margin-left:0;padding:12px 10px;padding-bottom:80px}
+  /* iPhone safe area */
+  .mobile-nav{padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{padding-bottom:0}
   .panels{grid-template-columns:1fr}
-  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:100}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200}
   .mobile-nav-btn{flex:1;padding:10px 2px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'DM Sans',sans-serif;transition:color .15s}
   .mobile-nav-btn.active{color:var(--green)}
   .mobile-nav-btn svg{width:17px;height:17px}
-  body{padding-bottom:60px}
-  /* Cards principais: 2x2 no mobile */
+  /* Cabeçalho mobile */
+  .mobile-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:150;margin:-12px -10px 14px}
+  .mobile-header-title{font-size:16px;font-weight:600}
+  .mobile-header-actions{display:flex;align-items:center;gap:8px}
+  /* Cards 2x2 */
   .cards{grid-template-columns:1fr 1fr !important}
   .card{padding:12px 10px}
-  .card-value{font-size:15px}
+  .card-value{font-size:15px;word-break:break-all}
   .card-label{font-size:9px}
   .card-sub{font-size:10px}
-  /* Métricas secundárias: 2x2 */
+  /* Métricas 2x2 */
   .metric-row{grid-template-columns:1fr 1fr !important}
   .metric-sm{padding:10px}
   .metric-sm-val{font-size:13px}
-  /* Faturas: coluna única */
+  /* Faturas coluna única */
   #cartoes-row{flex-direction:column}
   .cartao-card{min-width:unset}
-  /* Page header mais compacto */
-  .page-header{margin-bottom:14px}
+  /* Headers */
+  .page-header{margin-bottom:0;display:none}
   .page-title{font-size:18px}
-  /* Month selector menor */
   .month-sel span{min-width:80px;font-size:12px}
   .topbar-btn{padding:7px 12px;font-size:12px}
-  /* Panels sem padding excessivo */
   .panel{padding:14px}
-  /* Resumo IA mais compacto */
+  /* IA */
   .ai-suggestions{gap:6px}
   .ai-sug{font-size:11px;padding:5px 10px}
+  .ai-input-row{flex-direction:column}
   /* Transações */
-  .tx-filters{gap:5px}
+  .tx-filters{gap:5px;flex-wrap:wrap}
   .tx-filter-btn{padding:4px 8px;font-size:11px}
   .tx-item{gap:8px}
   .tx-desc{font-size:12px}
-  /* Ranking 1 coluna */
+  /* Ranking 1 col */
   #ranking-list > div{grid-template-columns:1fr !important}
   /* Investimentos */
   .inv-values{grid-template-columns:1fr 1fr !important}
-  /* Score menor no mobile */
+  /* Score */
   #score-ring{width:90px !important;height:90px !important}
   .score-val{font-size:18px !important}
-  /* Header do app */
-  .page-header{flex-wrap:wrap;gap:8px}
-  .page-header > div:last-child{width:100%;display:flex;justify-content:space-between}
+  /* Modais full screen no mobile */
+  .modal{width:100% !important;max-width:100% !important;border-radius:var(--radius) var(--radius) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh;overflow-y:auto}
+  .modal-overlay{align-items:flex-end}
+  /* Perfil dropdown */
+  #perfil-menu{left:8px;right:8px;top:auto;bottom:70px}
+  /* Dois col forms */
+  .form-grid{grid-template-columns:1fr !important}
+  .form-grid .full{grid-column:1}
+  /* Login box */
+  .login-box{padding:24px 20px;border-radius:var(--radius) var(--radius) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh;overflow-y:auto}
+  .login-screen{align-items:flex-end}
 }
-@media(min-width:769px){.mobile-nav{display:none}}
+@media(min-width:769px){.mobile-nav{display:none}.mobile-header{display:none}}
+
 
 .score-ring{display:flex;align-items:center;justify-content:center;position:relative}
 .score-ring svg{transform:rotate(-90deg)}
@@ -378,6 +402,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <button class="nav-item" onclick="setSection('alertas')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     Alertas
+    <span class="nav-badge" id="badge-alertas">!</span>
+  </button>
+  <button class="nav-item" onclick="setSection('cartoes')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Cartões
   </button>
   <button class="nav-item" onclick="setSection('ia')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -405,6 +434,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
   </div>
 
+  <div class="mobile-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:15px;font-weight:600">Dashboard</div>
+      <div class="month-sel" style="padding:4px 8px">
+        <button onclick="mudaMes(-1)" style="font-size:13px">&#8249;</button>
+        <span id="mes-label-mob" style="font-size:11px;min-width:70px;text-align:center"></span>
+        <button onclick="mudaMes(1)" style="font-size:13px">&#8250;</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div id="alertas-banner" style="display:none;background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red)"></div>
 
   <!-- Cards principais -->
@@ -484,6 +527,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- TRANSAÇÕES -->
 <div class="section" id="sec-transacoes">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Transações</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob-sec-transacoes" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div class="page-header">
     <div><div class="page-title">Transações</div><div class="page-sub" id="tx-sub"></div></div>
     <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
@@ -511,6 +561,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- INVESTIMENTOS -->
 <div class="section" id="sec-investimentos">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Investimentos</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalInv()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob-sec-investimentos" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div class="page-header">
     <div><div class="page-title">Investimentos</div><div class="page-sub">Acompanhe seu patrimônio</div></div>
     <button class="topbar-btn" onclick="abrirModalInv()">+ Investimento</button>
@@ -521,6 +578,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- METAS -->
 <div class="section" id="sec-metas">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Metas</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalMeta()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob-sec-metas" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div class="page-header">
     <div><div class="page-title">Metas</div><div class="page-sub">Acompanhe seus objetivos</div></div>
     <button class="topbar-btn" onclick="abrirModalMeta()">+ Meta</button>
@@ -530,6 +594,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- ALERTAS -->
 <div class="section" id="sec-alertas">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Alertas</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalAlerta()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob-sec-alertas" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div class="page-header">
     <div><div class="page-title">Alertas de gastos</div><div class="page-sub">Defina limites por categoria</div></div>
     <button class="topbar-btn" onclick="abrirModalAlerta()">+ Alerta</button>
@@ -537,8 +608,31 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="panel"><div id="alertas-config-list"></div></div>
 </div>
 
+<!-- CARTÕES -->
+<div class="section" id="sec-cartoes">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Meus cartões</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalCartao()" style="padding:6px 10px;font-size:11px">+</button>
+      <div onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer" id="user-avatar-mob-cartoes">?</div>
+    </div>
+  </div>
+  <div class="page-header">
+    <div><div class="page-title">Meus cartões</div><div class="page-sub">Gerencie seus cartões</div></div>
+    <button class="topbar-btn" onclick="abrirModalCartao()">+ Cartão</button>
+  </div>
+  <div id="cartoes-lista"></div>
+</div>
+
 <!-- IA -->
 <div class="section" id="sec-ia">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Análise IA</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      
+      <div id="user-avatar-mob-sec-ia" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+    </div>
+  </div>
   <div class="page-header">
     <div><div class="page-title">Análise com IA</div><div class="page-sub">Pergunte sobre suas finanças</div></div>
     <div style="display:flex;gap:8px">
@@ -576,8 +670,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <nav class="mobile-nav">
   <button class="mobile-nav-btn active" onclick="setSection('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home</button>
   <button class="mobile-nav-btn" onclick="setSection('transacoes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Transações</button>
-  <button class="mobile-nav-btn" onclick="setSection('investimentos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Invest.</button>
   <button class="mobile-nav-btn" onclick="setSection('metas')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas</button>
+  <button class="mobile-nav-btn" onclick="setSection('alertas')" style="position:relative">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span id="badge-alertas-mob" style="display:none;position:absolute;top:6px;right:12px;background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px">!</span>
+    Alertas
+  </button>
   <button class="mobile-nav-btn" onclick="setSection('ia')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>IA</button>
 </nav>
 
@@ -792,6 +890,55 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
+<!-- Modal Cartão -->
+<div class="modal-overlay" id="modal-cartao">
+  <div class="modal">
+    <div class="modal-title" id="cartao-modal-title">Novo cartão</div>
+    <input type="hidden" id="cartao-edit-id">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Apelido</label>
+        <input class="form-input" id="cartao-apelido" placeholder="Ex: Nubank, Bradesco...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bandeira</label>
+        <select class="form-input" id="cartao-bandeira">
+          <option value="visa">Visa</option>
+          <option value="mastercard">Mastercard</option>
+          <option value="elo">Elo</option>
+          <option value="hipercard">Hipercard</option>
+          <option value="amex">Amex</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Banco</label>
+        <input class="form-input" id="cartao-banco" placeholder="Ex: Nubank, Bradesco...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Últimos 4 dígitos</label>
+        <input class="form-input" id="cartao-ultimos4" placeholder="1234" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cor</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="cartao-cores">
+          <button type="button" onclick="selecionarCor(this,'#5b9cf6')" style="width:24px;height:24px;border-radius:50%;background:#5b9cf6;border:2px solid #fff;cursor:pointer"></button>
+          <button type="button" onclick="selecionarCor(this,'#f96b6b')" style="width:24px;height:24px;border-radius:50%;background:#f96b6b;border:2px solid transparent;cursor:pointer"></button>
+          <button type="button" onclick="selecionarCor(this,'#2dd4a0')" style="width:24px;height:24px;border-radius:50%;background:#2dd4a0;border:2px solid transparent;cursor:pointer"></button>
+          <button type="button" onclick="selecionarCor(this,'#a78bfa')" style="width:24px;height:24px;border-radius:50%;background:#a78bfa;border:2px solid transparent;cursor:pointer"></button>
+          <button type="button" onclick="selecionarCor(this,'#f5a623')" style="width:24px;height:24px;border-radius:50%;background:#f5a623;border:2px solid transparent;cursor:pointer"></button>
+          <button type="button" onclick="selecionarCor(this,'#fb923c')" style="width:24px;height:24px;border-radius:50%;background:#fb923c;border:2px solid transparent;cursor:pointer"></button>
+        </div>
+        <input type="hidden" id="cartao-cor" value="#5b9cf6">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalCartao()">Cancelar</button>
+      <button class="btn primary" onclick="salvarCartao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- Modal alterar senha -->
@@ -867,6 +1014,7 @@ async function carregarTudo(){
     if(ri.error)throw new Error(ri.error.message||'Erro na tabela investimentos');
     if(ra.error)throw new Error(ra.error.message||'Erro na tabela alertas');
     txs=rt.data||[];metas=rm.data||[];investimentos=ri.data||[];alertas=ra.data||[];
+    await carregarCartoes();
     document.getElementById('db-dot').className='db-dot ok';
     document.getElementById('db-label').textContent='Conectado';
     document.getElementById('db-label').style.color='var(--green)';
@@ -893,11 +1041,13 @@ function setSection(sec){
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
-  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,ia:5};
-  const i=idx[sec];
-  document.querySelectorAll('.nav-item')[i]?.classList.add('active');
-  const mIdx={dashboard:0,transacoes:1,investimentos:2,metas:3,ia:4};
+  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,ia:6};
+  document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
+  // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
+  const mIdx={dashboard:0,transacoes:1,metas:2,alertas:3,ia:4};
   document.querySelectorAll('.mobile-nav-btn')[mIdx[sec]??4]?.classList.add('active');
+  // Scroll to top
+  document.querySelector('.main')?.scrollTo(0,0);
   renderAll();
 }
 function mudaMes(d){
@@ -912,6 +1062,9 @@ function checkAlertas(){
   const badge=document.getElementById('badge-alertas');
   badge.className='nav-badge'+(disparados.length?' show':'');
   badge.textContent=disparados.length;
+  // Mobile badge
+  const mobBadge=document.getElementById('badge-alertas-mob');
+  if(mobBadge){mobBadge.style.display=disparados.length?'block':'none';mobBadge.textContent=disparados.length;}
   const banner=document.getElementById('alertas-banner');
   if(disparados.length){
     banner.style.display='block';
@@ -971,25 +1124,29 @@ function renderDash(){
   `;
 
   // Cartões — fatura estimada
+  // Faturas por cartão cadastrado
+  const faturasPorCartao={};
+  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
+    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
+  });
   const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  document.getElementById('cartoes-row').innerHTML=`
-    <div class="cartao-card">
-      <div class="cartao-card-title"><span style="width:10px;height:10px;border-radius:50%;background:#5b9cf6;display:inline-block"></span>Visa Bradesco</div>
-      <div class="cartao-card-val" style="color:#5b9cf6">${fmt(visaVal)}</div>
-      <div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div>
-    </div>
-    <div class="cartao-card">
-      <div class="cartao-card-title"><span style="width:10px;height:10px;border-radius:50%;background:#f96b6b;display:inline-block"></span>Mastercard Nubank</div>
-      <div class="cartao-card-val" style="color:#f96b6b">${fmt(masterVal)}</div>
-      <div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div>
-    </div>
+  const cartoesDash = cartoes.length > 0
+    ? cartoes.map(ct=>`
+        <div class="cartao-card" onclick="document.getElementById('filtro-cartao-id').value='${ct.id}';setSection('transacoes')" style="cursor:pointer">
+          <div class="cartao-card-title"><span style="width:10px;height:10px;border-radius:50%;background:${ct.cor};display:inline-block"></span>${ct.apelido}${ct.ultimos4?' ••'+ct.ultimos4:''}</div>
+          <div class="cartao-card-val" style="color:${ct.cor}">${fmt(faturasPorCartao[ct.id]||0)}</div>
+          <div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div>
+        </div>`).join('')
+    : `<div class="cartao-card"><div class="cartao-card-title">Visa Bradesco</div><div class="cartao-card-val" style="color:#5b9cf6">${fmt(visaVal)}</div><div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div></div>
+       <div class="cartao-card"><div class="cartao-card-title">Mastercard Nubank</div><div class="cartao-card-val" style="color:#f96b6b">${fmt(masterVal)}</div><div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div></div>`;
+  const totalCredito=tm.filter(t=>t.forma_pagamento==='credito'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  document.getElementById('cartoes-row').innerHTML=cartoesDash+`
     <div class="cartao-card" style="flex:2">
       <div class="cartao-card-title">Total no crédito</div>
-      <div class="cartao-card-val">${fmt(visaVal+masterVal)}</div>
-      <div class="cartao-card-sub">${tm.filter(t=>t.forma_pagamento==='credito').length} compra(s) parceladas/à vista</div>
-    </div>
-  `;
+      <div class="cartao-card-val">${fmt(totalCredito)}</div>
+      <div class="cartao-card-sub">${tm.filter(t=>t.forma_pagamento==='credito').length} compra(s)</div>
+    </div>`;
 
   // Fluxo de caixa dia a dia
   renderFluxo(tm,totalDias);
@@ -1194,6 +1351,11 @@ function renderTxs(){
   const tm=txsMes();
 
   // Resumo por cartão
+  // Faturas por cartão cadastrado
+  const faturasPorCartao={};
+  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
+    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
+  });
   const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
@@ -1607,6 +1769,7 @@ document.getElementById('modal-alerta').addEventListener('click',e=>{if(e.target
 document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditTx();});
 document.getElementById('modal-senha').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+document.getElementById('modal-cartao').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCartao();});
 document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
 document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
 
@@ -1775,6 +1938,11 @@ function exportarRelatorio(){
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
 
   // Por cartão
+  // Faturas por cartão cadastrado
+  const faturasPorCartao={};
+  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
+    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
+  });
   const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
@@ -1890,6 +2058,131 @@ function exportarRelatorio(){
 }
 
 
+
+// ── CARTÕES ───────────────────────────────────────────────────
+let cartoes = [];
+let cartaoCorSelecionada = '#5b9cf6';
+
+const BANDEIRA_ICON = {
+  visa: 'VISA', mastercard: 'MC', elo: 'ELO',
+  hipercard: 'HIPER', amex: 'AMEX', outro: '••'
+};
+
+async function carregarCartoes(){
+  if(!currentUser) return;
+  const {data,error} = await sb.from('cartoes').select('*').order('criado_em');
+  if(!error) cartoes = data||[];
+  renderCartoes();
+  atualizaSelectCartoes();
+}
+
+function renderCartoes(){
+  const el = document.getElementById('cartoes-lista');
+  if(!el) return;
+  if(!cartoes.length){
+    el.innerHTML = '<div class="empty" style="padding:40px">Nenhum cartão cadastrado. Adicione seu primeiro cartão!</div>';
+    return;
+  }
+  el.innerHTML = cartoes.map(ct => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+      <div style="width:52px;height:34px;border-radius:6px;background:${ct.cor};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${BANDEIRA_ICON[ct.bandeira]||'••'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500">${ct.apelido}${ct.ultimos4?' •••• '+ct.ultimos4:''}</div>
+        <div style="font-size:11px;color:var(--text3)">${ct.banco||ct.bandeira}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn sm" onclick="editarCartao(${ct.id})">Editar</button>
+        <button class="btn sm danger" onclick="deletarCartao(${ct.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function atualizaSelectCartoes(){
+  // Atualizar selects de cartão no modal de transação
+  const opts = cartoes.length
+    ? '<option value="">Nenhum</option>' + cartoes.map(ct=>`<option value="${ct.id}">${ct.apelido}${ct.ultimos4?' ••'+ct.ultimos4:''}</option>`).join('')
+    : '<option value="">Nenhum cartão cadastrado</option>';
+  ['f-cartao','edit-cartao'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=opts;
+  });
+}
+
+function selecionarCor(btn, cor){
+  cartaoCorSelecionada = cor;
+  document.getElementById('cartao-cor').value = cor;
+  document.querySelectorAll('#cartao-cores button').forEach(b=>b.style.border='2px solid transparent');
+  btn.style.border = '2px solid #fff';
+}
+
+function abrirModalCartao(){
+  document.getElementById('cartao-modal-title').textContent = 'Novo cartão';
+  document.getElementById('cartao-edit-id').value = '';
+  document.getElementById('cartao-apelido').value = '';
+  document.getElementById('cartao-bandeira').value = 'visa';
+  document.getElementById('cartao-banco').value = '';
+  document.getElementById('cartao-ultimos4').value = '';
+  cartaoCorSelecionada = '#5b9cf6';
+  document.getElementById('cartao-cor').value = '#5b9cf6';
+  document.querySelectorAll('#cartao-cores button').forEach((b,i)=>b.style.border=i===0?'2px solid #fff':'2px solid transparent');
+  document.getElementById('modal-cartao').classList.add('open');
+}
+
+function fecharModalCartao(){ document.getElementById('modal-cartao').classList.remove('open'); }
+
+function editarCartao(id){
+  const ct = cartoes.find(c=>c.id===id);
+  if(!ct) return;
+  document.getElementById('cartao-modal-title').textContent = 'Editar cartão';
+  document.getElementById('cartao-edit-id').value = id;
+  document.getElementById('cartao-apelido').value = ct.apelido;
+  document.getElementById('cartao-bandeira').value = ct.bandeira;
+  document.getElementById('cartao-banco').value = ct.banco||'';
+  document.getElementById('cartao-ultimos4').value = ct.ultimos4||'';
+  cartaoCorSelecionada = ct.cor||'#5b9cf6';
+  document.getElementById('cartao-cor').value = cartaoCorSelecionada;
+  document.querySelectorAll('#cartao-cores button').forEach(b=>{
+    b.style.border = b.style.background===cartaoCorSelecionada.replace('#','rgb').toLowerCase()||b.getAttribute('onclick')?.includes(cartaoCorSelecionada) ? '2px solid #fff' : '2px solid transparent';
+  });
+  document.getElementById('modal-cartao').classList.add('open');
+}
+
+async function salvarCartao(){
+  const apelido = document.getElementById('cartao-apelido').value.trim();
+  const bandeira = document.getElementById('cartao-bandeira').value;
+  const banco = document.getElementById('cartao-banco').value.trim();
+  const ultimos4 = document.getElementById('cartao-ultimos4').value.trim();
+  const cor = document.getElementById('cartao-cor').value || '#5b9cf6';
+  const editId = document.getElementById('cartao-edit-id').value;
+  if(!apelido) return;
+  if(ultimos4 && ultimos4.length !== 4){ toast('Informe os 4 últimos dígitos','err'); return; }
+  const payload = {apelido, bandeira, banco:banco||null, ultimos4:ultimos4||null, cor, user_id:currentUser?.id};
+  let error;
+  if(editId){
+    ({error} = await sb.from('cartoes').update(payload).eq('id',parseInt(editId)));
+    if(!error) cartoes = cartoes.map(c=>c.id===parseInt(editId)?{...c,...payload}:c);
+  } else {
+    const {data:novo, error:err} = await sb.from('cartoes').insert(payload).select().single();
+    error = err;
+    if(!error) cartoes.push(novo);
+  }
+  if(error){ toast('Erro ao salvar cartão','err'); return; }
+  fecharModalCartao();
+  toast(editId?'Cartão atualizado!':'Cartão adicionado!');
+  renderCartoes();
+  atualizaSelectCartoes();
+}
+
+async function deletarCartao(id){
+  if(!confirm('Remover este cartão?')) return;
+  const {error} = await sb.from('cartoes').delete().eq('id',id);
+  if(error){ toast('Erro ao remover','err'); return; }
+  cartoes = cartoes.filter(c=>c.id!==id);
+  toast('Cartão removido');
+  renderCartoes();
+  atualizaSelectCartoes();
+}
+
 // ── EXPORTAR PDF ──────────────────────────────────────────────
 function exportarPDF(){
   const tm=txsMes();
@@ -1898,6 +2191,11 @@ function exportarPDF(){
   const catMap={};
   tm.filter(t=>t.tipo==='despesa').forEach(t=>{catMap[t.categoria]=(catMap[t.categoria]||0)+Number(t.valor);});
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  // Faturas por cartão cadastrado
+  const faturasPorCartao={};
+  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
+    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
+  });
   const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
@@ -2283,6 +2581,8 @@ function onLogin(user){
   document.getElementById('perfil-avatar-big').textContent=inicial;
   document.getElementById('user-email').textContent=email;
   document.getElementById('perfil-nome-display').textContent=nome;
+  // Sincronizar avatares nos headers mobile
+  document.querySelectorAll('[id^="user-avatar-mob"]').forEach(el=>el.textContent=inicial);
   carregarTudo();
 }
 
