@@ -2,14 +2,22 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Finanças Pessoais</title>
+<meta name="description" content="Gerencie suas finanças pessoais com inteligência">
+<meta name="theme-color" content="#2dd4a0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0f0f11;--bg2:#16161a;--bg3:#1e1e24;--bg4:#26262e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f0f4;--text2:#9090a0;--text3:#606070;--green:#2dd4a0;--green-bg:rgba(45,212,160,0.1);--red:#f96b6b;--red-bg:rgba(249,107,107,0.1);--amber:#f5a623;--amber-bg:rgba(245,166,35,0.1);--blue:#5b9cf6;--blue-bg:rgba(91,156,246,0.1);--purple:#a78bfa;--radius:12px;--radius-sm:8px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;min-height:-webkit-fill-available}
 .app{display:flex;min-height:100vh}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
 .logo{padding:0 20px 20px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);margin-bottom:8px}
@@ -940,6 +948,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Banner instalar PWA -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:70px;left:12px;right:12px;background:var(--bg2);border:1px solid var(--green);border-radius:var(--radius);padding:12px 16px;z-index:300;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4)">
+  <div style="width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <svg width="18" height="18" fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+  </div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:13px;font-weight:500">Instalar o app</div>
+    <div style="font-size:11px;color:var(--text3)">Adicione à tela inicial para acesso rápido</div>
+  </div>
+  <button onclick="instalarPWA()" style="background:var(--green);border:none;color:#0a1a14;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">Instalar</button>
+  <button onclick="document.getElementById('pwa-banner').style.display='none'" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px">✕</button>
+</div>
 
 <!-- Modal alterar senha -->
 <div class="modal-overlay" id="modal-senha">
@@ -2618,6 +2639,41 @@ async function initAuth(){
 }
 
 initAuth();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log('SW registrado'))
+      .catch(e=>console.log('SW erro:',e));
+  });
+}
+// Prompt de instalação PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  // Mostrar banner após 30s se não instalou
+  setTimeout(()=>{
+    if(deferredPrompt&&document.getElementById('pwa-banner')){
+      document.getElementById('pwa-banner').style.display='flex';
+    }
+  },30000);
+});
+window.addEventListener('appinstalled',()=>{
+  const b=document.getElementById('pwa-banner');
+  if(b)b.style.display='none';
+  deferredPrompt=null;
+});
+function instalarPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(()=>{
+      deferredPrompt=null;
+      document.getElementById('pwa-banner').style.display='none';
+    });
+  }
+}
 </script>
 </body>
 </html>
