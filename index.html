@@ -308,7 +308,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
     <div class="form-group" style="margin-bottom:6px">
       <label class="form-label">Senha</label>
-      <input class="form-input" id="login-senha" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitLogin()">
+      <div style="position:relative">
+        <input class="form-input" id="login-senha" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitLogin()" style="padding-right:40px">
+        <button type="button" onclick="toggleSenha()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;display:flex;align-items:center" id="btn-toggle-senha">
+          <svg id="eye-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
     <div id="login-nome-row" style="display:none" class="form-group" style="margin-bottom:10px">
       <label class="form-label" style="margin-top:10px;display:block">Nome (opcional)</label>
@@ -326,9 +331,29 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <div class="app">
 <aside class="sidebar">
-  <div class="logo">
+  <div class="logo" style="position:relative">
     <div class="logo-icon"><svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
     Finanças
+    <div id="user-avatar" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all .15s">?</div>
+  </div>
+  <!-- Dropdown perfil -->
+  <div id="perfil-menu" style="display:none;position:absolute;top:64px;left:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--green)" id="perfil-avatar-big">?</div>
+      <div style="min-width:0">
+        <div style="font-size:13px;font-weight:500" id="perfil-nome-display">—</div>
+        <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="user-email">—</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">Conta</div>
+    <button onclick="abrirAlterarSenha()" style="width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:13px;font-family:'DM Sans',sans-serif;padding:7px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Alterar senha
+    </button>
+    <button onclick="logout()" style="width:100%;text-align:left;background:none;border:none;color:var(--red);font-size:13px;font-family:'DM Sans',sans-serif;padding:7px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;margin-top:4px;transition:background .15s" onmouseover="this.style.background='var(--red-bg)'" onmouseout="this.style.background='none'">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair da conta
+    </button>
   </div>
   <div class="nav-section">Visão geral</div>
   <button class="nav-item active" onclick="setSection('dashboard')">
@@ -358,13 +383,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     Análise IA
   </button>
-  <div class="user-menu" id="user-menu">
-    <div class="user-avatar" id="user-avatar">?</div>
-    <div class="user-info">
-      <div class="user-email" id="user-email">—</div>
-    </div>
-    <button class="logout-btn" onclick="logout()" title="Sair">&#x2192;</button>
-  </div>
   <div class="db-status">
     <div class="db-dot" id="db-dot"></div>
     <span id="db-label" style="color:var(--text3)">Conectando...</span>
@@ -775,6 +793,26 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Modal alterar senha -->
+<div class="modal-overlay" id="modal-senha">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-title">Alterar senha</div>
+    <div class="form-group" style="margin-bottom:10px">
+      <label class="form-label">Nova senha</label>
+      <div style="position:relative">
+        <input class="form-input" id="nova-senha" type="password" placeholder="••••••••" style="padding-right:40px">
+        <button type="button" onclick="toggleNovaSenha()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px">
+          <svg id="eye-nova" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="document.getElementById('modal-senha').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="alterarSenha()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ══════════════════════════════════════════
@@ -1568,6 +1606,7 @@ document.getElementById('modal-meta').addEventListener('click',e=>{if(e.target==
 document.getElementById('modal-alerta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalAlerta();});
 document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditTx();});
+document.getElementById('modal-senha').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
 document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
 
@@ -2120,6 +2159,56 @@ function exportarPDF(){
 
 
 // ── AUTH ──────────────────────────────────────────────────────
+function toggleSenha(){
+  const input=document.getElementById('login-senha');
+  const icon=document.getElementById('eye-icon');
+  if(input.type==='password'){
+    input.type='text';
+    icon.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type='password';
+    icon.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+function togglePerfilMenu(){
+  const m=document.getElementById('perfil-menu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+// Fechar menu ao clicar fora
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('perfil-menu');
+  const avatar=document.getElementById('user-avatar');
+  if(menu&&avatar&&!menu.contains(e.target)&&!avatar.contains(e.target)){
+    menu.style.display='none';
+  }
+});
+
+function abrirAlterarSenha(){
+  document.getElementById('perfil-menu').style.display='none';
+  document.getElementById('nova-senha').value='';
+  document.getElementById('modal-senha').classList.add('open');
+}
+async function alterarSenha(){
+  const senha=document.getElementById('nova-senha').value;
+  if(senha.length<6){toast('Senha deve ter pelo menos 6 caracteres','err');return;}
+  const {error}=await sb.auth.updateUser({password:senha});
+  if(error){toast(error.message,'err');return;}
+  document.getElementById('modal-senha').classList.remove('open');
+  toast('Senha alterada com sucesso!');
+}
+function toggleNovaSenha(){
+  const input=document.getElementById('nova-senha');
+  const icon=document.getElementById('eye-nova');
+  if(input.type==='password'){
+    input.type='text';
+    icon.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type='password';
+    icon.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
 function setLoginTab(tab){
   document.getElementById('tab-login').className='login-tab'+(tab==='login'?' active':'');
   document.getElementById('tab-signup').className='login-tab'+(tab==='signup'?' active':'');
@@ -2189,8 +2278,11 @@ function onLogin(user){
   // Atualizar avatar e email na sidebar
   const email=user.email||'';
   const nome=user.user_metadata?.nome||email.split('@')[0]||'?';
-  document.getElementById('user-avatar').textContent=nome.charAt(0).toUpperCase();
+  const inicial=nome.charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent=inicial;
+  document.getElementById('perfil-avatar-big').textContent=inicial;
   document.getElementById('user-email').textContent=email;
+  document.getElementById('perfil-nome-display').textContent=nome;
   carregarTudo();
 }
 
