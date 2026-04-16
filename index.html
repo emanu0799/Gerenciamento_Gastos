@@ -39,7 +39,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .card.alert-warn{border-color:var(--amber) !important}
 .card.alert-danger{border-color:var(--red) !important}
 .card-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
-.card-value{font-size:19px;font-weight:600;font-family:'DM Mono',monospace}
+.card-value{font-size:19px;font-weight:600;font-family:'DM Mono',monospace;word-break:break-all}
 .card-value.green{color:var(--green)}
 .card-value.red{color:var(--red)}
 .card-value.amber{color:var(--amber)}
@@ -184,14 +184,52 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
 @media(max-width:768px){
   .sidebar{display:none}
-  .main{margin-left:0;padding:16px}
-  .cards{grid-template-columns:1fr 1fr}
+  .main{margin-left:0;padding:12px}
   .panels{grid-template-columns:1fr}
   .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:100}
   .mobile-nav-btn{flex:1;padding:10px 2px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'DM Sans',sans-serif;transition:color .15s}
   .mobile-nav-btn.active{color:var(--green)}
   .mobile-nav-btn svg{width:17px;height:17px}
   body{padding-bottom:60px}
+  /* Cards principais: 2x2 no mobile */
+  .cards{grid-template-columns:1fr 1fr !important}
+  .card{padding:12px 10px}
+  .card-value{font-size:15px}
+  .card-label{font-size:9px}
+  .card-sub{font-size:10px}
+  /* Métricas secundárias: 2x2 */
+  .metric-row{grid-template-columns:1fr 1fr !important}
+  .metric-sm{padding:10px}
+  .metric-sm-val{font-size:13px}
+  /* Faturas: coluna única */
+  #cartoes-row{flex-direction:column}
+  .cartao-card{min-width:unset}
+  /* Page header mais compacto */
+  .page-header{margin-bottom:14px}
+  .page-title{font-size:18px}
+  /* Month selector menor */
+  .month-sel span{min-width:80px;font-size:12px}
+  .topbar-btn{padding:7px 12px;font-size:12px}
+  /* Panels sem padding excessivo */
+  .panel{padding:14px}
+  /* Resumo IA mais compacto */
+  .ai-suggestions{gap:6px}
+  .ai-sug{font-size:11px;padding:5px 10px}
+  /* Transações */
+  .tx-filters{gap:5px}
+  .tx-filter-btn{padding:4px 8px;font-size:11px}
+  .tx-item{gap:8px}
+  .tx-desc{font-size:12px}
+  /* Ranking 1 coluna */
+  #ranking-list > div{grid-template-columns:1fr !important}
+  /* Investimentos */
+  .inv-values{grid-template-columns:1fr 1fr !important}
+  /* Score menor no mobile */
+  #score-ring{width:90px !important;height:90px !important}
+  .score-val{font-size:18px !important}
+  /* Header do app */
+  .page-header{flex-wrap:wrap;gap:8px}
+  .page-header > div:last-child{width:100%;display:flex;justify-content:space-between}
 }
 @media(min-width:769px){.mobile-nav{display:none}}
 
@@ -420,6 +458,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <div class="section" id="sec-ia">
   <div class="page-header">
     <div><div class="page-title">Análise com IA</div><div class="page-sub">Pergunte sobre suas finanças</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="topbar-btn" onclick="exportarRelatorio()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text)">&#x1F4CB; Copiar texto</button>
+      <button class="topbar-btn" onclick="exportarPDF()">&#x1F4C4; Exportar PDF</button>
+    </div>
   </div>
   <div class="panel" style="margin-bottom:14px">
     <div class="panel-title">Resumo enviado</div>
@@ -706,13 +748,19 @@ function setLoading(on){document.getElementById('loading').style.display=on?'fle
 async function carregarTudo(){
   setLoading(true);
   try{
-    const [rt,rm,ri,ra]=await Promise.all([
+    // Timeout de 10s para não ficar preso
+    const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('Timeout — verifique sua conexão')),10000));
+    const queries = Promise.all([
       sb.from('transacoes').select('*').order('data',{ascending:false}),
       sb.from('metas').select('*').order('criado_em'),
       sb.from('investimentos').select('*').order('criado_em'),
       sb.from('alertas').select('*').order('categoria'),
     ]);
-    if(rt.error)throw rt.error;
+    const [rt,rm,ri,ra] = await Promise.race([queries, timeout]);
+    if(rt.error)throw new Error(rt.error.message||'Erro na tabela transacoes');
+    if(rm.error)throw new Error(rm.error.message||'Erro na tabela metas');
+    if(ri.error)throw new Error(ri.error.message||'Erro na tabela investimentos');
+    if(ra.error)throw new Error(ra.error.message||'Erro na tabela alertas');
     txs=rt.data||[];metas=rm.data||[];investimentos=ri.data||[];alertas=ra.data||[];
     document.getElementById('db-dot').className='db-dot ok';
     document.getElementById('db-label').textContent='Conectado';
@@ -720,9 +768,18 @@ async function carregarTudo(){
   }catch(e){
     document.getElementById('db-dot').className='db-dot err';
     document.getElementById('db-label').textContent='Erro na conexão';
-    toast('Erro ao carregar. Verifique as credenciais.','err');
+    // Mostrar erro real na tela
+    const loadEl=document.getElementById('loading');
+    loadEl.innerHTML=`<div style="text-align:center;padding:20px;max-width:360px">
+      <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:8px">Erro ao conectar</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px">${e.message}</div>
+      <button onclick="location.reload()" style="background:var(--green);border:none;color:#0a1a14;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Tentar novamente</button>
+    </div>`;
+    return; // Não chama renderAll se falhou
   }
-  setLoading(false);renderAll();
+  setLoading(false);
+  renderAll();
 }
 
 // ── NAV ───────────────────────────────────────────────────────
@@ -804,8 +861,8 @@ function renderDash(){
   document.getElementById('metric-row').innerHTML=`
     <div class="metric-sm"><div class="metric-sm-label">Gasto médio/dia</div><div class="metric-sm-val" style="color:var(--red)">${fmt(mediaDiaria)}</div></div>
     <div class="metric-sm"><div class="metric-sm-label">Dias restantes</div><div class="metric-sm-val">${diasRestantes}d</div></div>
-    <div class="metric-sm"><div class="metric-sm-label">Projeção de sobra</div><div class="metric-sm-val ${projecaoSobra>=0?'':''}; color:${projecaoSobra>=0?'var(--green)':'var(--red)'}">${fmt(projecaoSobra)}</div></div>
-    <div class="metric-sm"><div class="metric-sm-label">Rendimento invest.</div><div class="metric-sm-val ${lucroInv>=0?'':''}; color:${lucroInv>=0?'var(--green)':'var(--red)'}">${lucroInv>=0?'+':''}${fmt(lucroInv)}</div></div>
+    <div class="metric-sm"><div class="metric-sm-label">Projeção de sobra</div><div class="metric-sm-val" style="color:${projecaoSobra>=0?'var(--green)':'var(--red)'}">${fmt(projecaoSobra)}</div></div>
+    <div class="metric-sm"><div class="metric-sm-label">Rendimento invest.</div><div class="metric-sm-val" style="color:${lucroInv>=0?'var(--green)':'var(--red)'}">${lucroInv>=0?'+':''}${fmt(lucroInv)}</div></div>
   `;
 
   // Cartões — fatura estimada
@@ -879,8 +936,8 @@ function renderFluxo(tm,totalDias){
     const showLabel=d===1||d===Math.round(totalDias/2)||d===totalDias||d===hoje;
     return`<div class="flow-day">
       <div style="display:flex;gap:1px;align-items:flex-end;height:56px;width:100%">
-        ${v.rec>0?`<div style="flex:1;background:var(--green);opacity:${isFuture?.4:.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.rec/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
-        ${v.des>0?`<div style="flex:1;background:var(--red);opacity:${isFuture?.4:.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.des/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
+        ${v.rec>0?`<div style="flex:1;background:var(--green);opacity:${isFuture?0.4:0.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.rec/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
+        ${v.des>0?`<div style="flex:1;background:var(--red);opacity:${isFuture?0.4:0.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.des/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
       </div>
       <div class="flow-lbl">${showLabel?d:''}</div>
     </div>`;
@@ -1597,6 +1654,377 @@ async function updateMeta(){
   if(error){toast('Erro ao atualizar','err');return;}
   metas=metas.map(m=>m.id===id?{...m,nome,alvo,atual}:m);
   fecharModalEditMeta();toast('Meta atualizada!');renderMetas();
+}
+
+
+// ── EXPORTAR RELATÓRIO ────────────────────────────────────────
+function exportarRelatorio(){
+  const tm=txsMes();
+  const rec=soma(tm,'receita'),des=soma(tm,'despesa'),sal=rec-des;
+  const taxa=rec>0?Math.round((des/rec)*100):0;
+
+  // Por categoria
+  const catMap={};
+  tm.filter(t=>t.tipo==='despesa').forEach(t=>{catMap[t.categoria]=(catMap[t.categoria]||0)+Number(t.valor);});
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+
+  // Por cartão
+  const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+
+  // Parcelas futuras
+  const hoje=new Date();
+  const em30=new Date(hoje);em30.setDate(hoje.getDate()+30);
+  const futuras=txs.filter(t=>{
+    const d=new Date(t.data+'T00:00:00');
+    return t.tipo==='despesa'&&t.parcelas>1&&d>hoje&&d<=em30;
+  });
+  const totalFuturas=futuras.reduce((s,t)=>s+Number(t.valor),0);
+
+  // Investimentos
+  const invTotal=investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
+  const invAportado=investimentos.reduce((s,i)=>s+Number(i.valor_aportado),0);
+  const rentTotal=invAportado>0?((invTotal-invAportado)/invAportado*100):0;
+
+  // Alertas disparados
+  const disparados=alertas.filter(a=>catMap[a.categoria]>=a.limite);
+
+  // Score
+  let score=100;
+  if(taxa>100)score-=40;else if(taxa>90)score-=30;else if(taxa>80)score-=20;else if(taxa>70)score-=10;else if(taxa>60)score-=5;
+  score-=Math.min(20,disparados.length*7);
+  if(invTotal<=0)score-=20;else if(invTotal<500)score-=10;
+  const metasOk=metas.filter(m=>m.atual/m.alvo>=0.1).length;
+  if(metas.length===0)score-=10;else if(metasOk===0)score-=20;
+  score=Math.max(0,Math.min(100,score));
+
+  const totalDias=new Date(mesAno,mesMes+1,0).getDate();
+  const diasPassados=Math.max(1,mesMes===hoje.getMonth()&&mesAno===hoje.getFullYear()?hoje.getDate():totalDias);
+  const mediaDiaria=des/diasPassados;
+  const diasRestantes=mesMes===hoje.getMonth()&&mesAno===hoje.getFullYear()?totalDias-hoje.getDate():0;
+  const projecao=rec-(des+(mediaDiaria*diasRestantes));
+
+  const linhas=[
+`========================================`,
+`RELATÓRIO FINANCEIRO — ${MESES[mesMes].toUpperCase()}/${mesAno}`,
+`========================================`,
+``,
+`RESUMO GERAL`,
+`------------`,
+`Receitas:        ${fmt(rec)}`,
+`Despesas:        ${fmt(des)}`,
+`Saldo do mês:    ${fmt(sal)}`,
+`Taxa de gasto:   ${taxa}% da renda`,
+`Média diária:    ${fmt(mediaDiaria)}`,
+`Projeção sobra:  ${fmt(projecao)} (até fim do mês)`,
+`Score saúde:     ${score}/100`,
+``,
+`DESPESAS POR CATEGORIA`,
+`----------------------`,
+...cats.map(([cat,v])=>{
+  const al=alertas.find(a=>a.categoria===cat);
+  const status=al?(v>=al.limite?'⚠ LIMITE ULTRAPASSADO':v>=al.limite*.8?'⚠ Perto do limite':'✓ OK'):'';
+  return`${cat.padEnd(16)} ${fmt(v).padStart(12)}  ${status}`;
+}),
+``,
+`DESPESAS POR FORMA DE PAGAMENTO`,
+`--------------------------------`,
+`Visa Bradesco:   ${fmt(visaVal)}`,
+`Master Nubank:   ${fmt(masterVal)}`,
+`PIX:             ${fmt(pixVal)}`,
+``,
+`PARCELAS FUTURAS (próximos 30 dias)`,
+`------------------------------------`,
+...(futuras.length?futuras.sort((a,b)=>new Date(a.data)-new Date(b.data)).map(t=>`${new Date(t.data+'T00:00:00').toLocaleDateString('pt-BR')}  ${t.descricao.padEnd(20)} ${t.parcela_atual}/${t.parcelas}x  ${fmt(t.valor)}`):['Nenhuma parcela nos próximos 30 dias']),
+`Total comprometido: ${fmt(totalFuturas)}`,
+``,
+`INVESTIMENTOS`,
+`-------------`,
+...(investimentos.length?[
+  ...investimentos.map(i=>`${i.nome.padEnd(25)} Aportado: ${fmt(i.valor_aportado)}  Atual: ${fmt(i.saldo_atual)}  Rent: ${Number(i.rentabilidade_percent)>=0?'+':''}${Number(i.rentabilidade_percent).toFixed(2)}%${i.percentual_cdi?' ('+i.percentual_cdi+'% CDI)':''}`),
+  ``,
+  `Total aportado:  ${fmt(invAportado)}`,
+  `Patrimônio atual:${fmt(invTotal)}`,
+  `Rentabilidade:   ${rentTotal>=0?'+':''}${rentTotal.toFixed(2)}% (${fmt(invTotal-invAportado)})`,
+]:['Nenhum investimento cadastrado']),
+``,
+`METAS`,
+`-----`,
+...(metas.length?metas.map(m=>{
+  const pct=Math.min(100,Math.round((m.atual/m.alvo)*100));
+  const barra='█'.repeat(Math.round(pct/10))+'░'.repeat(10-Math.round(pct/10));
+  return`${m.nome.padEnd(25)} [${barra}] ${pct}%  ${fmt(m.atual)} / ${fmt(m.alvo)}`;
+}):['Nenhuma meta cadastrada']),
+``,
+`ALERTAS CONFIGURADOS`,
+`--------------------`,
+...(alertas.length?alertas.map(a=>{
+  const gasto=catMap[a.categoria]||0;
+  const pct=Math.round((gasto/a.limite)*100);
+  return`${a.categoria.padEnd(16)} Limite: ${fmt(a.limite)}  Gasto: ${fmt(gasto)}  (${pct}%) ${gasto>=a.limite?'⚠ ULTRAPASSADO':''}`;
+}):['Nenhum alerta configurado']),
+``,
+`========================================`,
+`Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`,
+`========================================`,
+  ];
+
+  const texto=linhas.join('\n');
+
+  // Copiar para área de transferência
+  navigator.clipboard.writeText(texto).then(()=>{
+    toast('Relatório copiado! Cole em qualquer IA 📋');
+  }).catch(()=>{
+    // Fallback: abrir em nova janela
+    const w=window.open('','_blank');
+    w.document.write('<pre style="font-family:monospace;padding:20px;background:#0f0f11;color:#f0f0f4;font-size:13px">'+texto+'</pre>');
+    w.document.title='Relatório '+MESES[mesMes]+'/'+mesAno;
+  });
+}
+
+
+// ── EXPORTAR PDF ──────────────────────────────────────────────
+function exportarPDF(){
+  const tm=txsMes();
+  const rec=soma(tm,'receita'),des=soma(tm,'despesa'),sal=rec-des;
+  const taxa=rec>0?Math.round((des/rec)*100):0;
+  const catMap={};
+  tm.filter(t=>t.tipo==='despesa').forEach(t=>{catMap[t.categoria]=(catMap[t.categoria]||0)+Number(t.valor);});
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const invTotal=investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
+  const invAportado=investimentos.reduce((s,i)=>s+Number(i.valor_aportado),0);
+  const rentTotal=invAportado>0?((invTotal-invAportado)/invAportado*100):0;
+  const disparados=alertas.filter(a=>catMap[a.categoria]>=a.limite);
+  let score=100;
+  if(taxa>100)score-=40;else if(taxa>90)score-=30;else if(taxa>80)score-=20;else if(taxa>70)score-=10;else if(taxa>60)score-=5;
+  score-=Math.min(20,disparados.length*7);
+  if(invTotal<=0)score-=20;else if(invTotal<500)score-=10;
+  if(metas.length===0)score-=10;else if(metas.filter(m=>m.atual/m.alvo>=0.1).length===0)score-=20;
+  score=Math.max(0,Math.min(100,score));
+  const scoreCor=score>=75?'#2dd4a0':score>=50?'#f5a623':'#f96b6b';
+  const hoje=new Date();
+  const em30=new Date(hoje);em30.setDate(hoje.getDate()+30);
+  const futuras=txs.filter(t=>{const d=new Date(t.data+'T00:00:00');return t.tipo==='despesa'&&t.parcelas>1&&d>hoje&&d<=em30;}).sort((a,b)=>new Date(a.data)-new Date(b.data));
+
+  // Últimas transações do mês
+  const ultimas=tm.sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,10);
+  const pagLabel={pix:'PIX',debito:'Débito',credito:'Crédito'};
+  const cartaoLabel={visa_bradesco:'Visa Bradesco',master_nubank:'Master Nubank'};
+
+  const html=`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório ${MESES[mesMes]}/${mesAno}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;font-size:13px;color:#1a1a2e;background:#fff;padding:0}
+  .page{max-width:794px;margin:0 auto;padding:40px 48px}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #0f0f11}
+  .header-left h1{font-size:22px;font-weight:600;color:#0f0f11}
+  .header-left p{font-size:12px;color:#666;margin-top:3px}
+  .header-right{text-align:right}
+  .header-right .score{font-size:32px;font-weight:700;color:${scoreCor};font-family:'DM Mono',monospace}
+  .header-right .score-label{font-size:11px;color:#888}
+  .section{margin-bottom:28px}
+  .section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#888;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #eee}
+  .cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:0}
+  .card{background:#f8f9fa;border-radius:8px;padding:12px 14px;border-left:3px solid #eee}
+  .card.green{border-left-color:#2dd4a0}
+  .card.red{border-left-color:#f96b6b}
+  .card.blue{border-left-color:#5b9cf6}
+  .card.purple{border-left-color:#a78bfa}
+  .card-label{font-size:10px;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+  .card-value{font-size:16px;font-weight:600;font-family:'DM Mono',monospace}
+  .card-value.green{color:#2dd4a0}
+  .card-value.red{color:#f96b6b}
+  .card-value.blue{color:#5b9cf6}
+  .card-value.purple{color:#a78bfa}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border-bottom:1px solid #eee}
+  td{padding:7px 8px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:500}
+  .badge.green{background:#e8faf5;color:#1a7a5e}
+  .badge.red{background:#fef0f0;color:#c0392b}
+  .badge.amber{background:#fef9e7;color:#b7770d}
+  .badge.blue{background:#eaf1fd;color:#1a4fa0}
+  .badge.purple{background:#f3f0ff;color:#5b21b6}
+  .progress-bg{background:#eee;border-radius:3px;height:5px;overflow:hidden;margin-top:3px}
+  .progress-fill{height:100%;border-radius:3px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .cartao-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .cartao-card{background:#f8f9fa;border-radius:8px;padding:12px 14px}
+  .cartao-card-label{font-size:10px;color:#888;margin-bottom:3px}
+  .cartao-card-val{font-size:15px;font-weight:600;font-family:'DM Mono',monospace}
+  .footer{margin-top:32px;padding-top:14px;border-top:1px solid #eee;font-size:10px;color:#aaa;display:flex;justify-content:space-between}
+  @media print{
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page{padding:24px 32px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Relatório Financeiro</h1>
+      <p>${MESES[mesMes]} de ${mesAno} &nbsp;·&nbsp; Gerado em ${hoje.toLocaleDateString('pt-BR')} às ${hoje.toLocaleTimeString('pt-BR')}</p>
+    </div>
+    <div class="header-right">
+      <div class="score">${score}</div>
+      <div class="score-label">Score de saúde financeira</div>
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div class="section">
+    <div class="section-title">Resumo do mês</div>
+    <div class="cards-row">
+      <div class="card green"><div class="card-label">Receitas</div><div class="card-value green">${fmt(rec)}</div></div>
+      <div class="card red"><div class="card-label">Despesas</div><div class="card-value red">${fmt(des)}</div><div style="font-size:10px;color:#888;margin-top:2px">${taxa}% da renda</div></div>
+      <div class="card ${sal>=0?'green':'red'}"><div class="card-label">Saldo</div><div class="card-value ${sal>=0?'green':'red'}">${fmt(sal)}</div></div>
+      <div class="card purple"><div class="card-label">Patrimônio invest.</div><div class="card-value purple">${fmt(invTotal)}</div></div>
+    </div>
+  </div>
+
+  <!-- Cartões -->
+  <div class="section">
+    <div class="section-title">Faturas estimadas</div>
+    <div class="cartao-row">
+      <div class="cartao-card"><div class="cartao-card-label" style="color:#5b9cf6">Visa Bradesco</div><div class="cartao-card-val" style="color:#5b9cf6">${fmt(visaVal)}</div></div>
+      <div class="cartao-card"><div class="cartao-card-label" style="color:#f96b6b">Mastercard Nubank</div><div class="cartao-card-val" style="color:#f96b6b">${fmt(masterVal)}</div></div>
+      <div class="cartao-card"><div class="cartao-card-label" style="color:#2dd4a0">PIX</div><div class="cartao-card-val" style="color:#2dd4a0">${fmt(pixVal)}</div></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Gastos por categoria -->
+    <div class="section">
+      <div class="section-title">Gastos por categoria</div>
+      <table>
+        <thead><tr><th>Categoria</th><th>Valor</th><th>%</th><th>Status</th></tr></thead>
+        <tbody>
+          ${cats.map(([cat,v])=>{
+            const al=alertas.find(a=>a.categoria===cat);
+            const pct=des>0?Math.round((v/des)*100):0;
+            const over=al&&v>=al.limite;
+            const near=al&&!over&&v>=al.limite*.8;
+            return`<tr>
+              <td>${cat}</td>
+              <td style="font-family:'DM Mono',monospace">${fmt(v)}</td>
+              <td style="font-family:'DM Mono',monospace">${pct}%</td>
+              <td>${al?(over?'<span class="badge red">Ultrapassado</span>':near?'<span class="badge amber">Atenção</span>':'<span class="badge green">OK</span>'):'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metas -->
+    <div class="section">
+      <div class="section-title">Metas</div>
+      ${metas.length?`<table>
+        <thead><tr><th>Meta</th><th>Progresso</th></tr></thead>
+        <tbody>
+          ${metas.map(m=>{
+            const pct=Math.min(100,Math.round((m.atual/m.alvo)*100));
+            const cor=pct>=100?'#2dd4a0':pct>=50?'#5b9cf6':'#f5a623';
+            return`<tr>
+              <td>
+                <div style="font-weight:500">${m.nome}</div>
+                <div style="font-size:10px;color:#888">${fmt(m.atual)} / ${fmt(m.alvo)}</div>
+                <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${cor}"></div></div>
+              </td>
+              <td style="font-family:'DM Mono',monospace;font-weight:600;color:${cor};white-space:nowrap">${pct}%</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`:'<p style="color:#aaa;font-size:12px;padding:12px 0">Nenhuma meta cadastrada</p>'}
+    </div>
+  </div>
+
+  <!-- Investimentos -->
+  ${investimentos.length?`<div class="section">
+    <div class="section-title">Investimentos</div>
+    <table>
+      <thead><tr><th>Nome</th><th>Tipo</th><th>Aportado</th><th>Saldo atual</th><th>Rentabilidade</th></tr></thead>
+      <tbody>
+        ${investimentos.map(i=>{
+          const rent=Number(i.rentabilidade_percent)||0;
+          return`<tr>
+            <td><div style="font-weight:500">${i.nome}</div>${i.percentual_cdi?`<div style="font-size:10px;color:#888">${i.percentual_cdi}% do CDI</div>`:''}</td>
+            <td><span class="badge blue">${i.tipo}</span></td>
+            <td style="font-family:'DM Mono',monospace">${fmt(i.valor_aportado)}</td>
+            <td style="font-family:'DM Mono',monospace;font-weight:500">${fmt(i.saldo_atual)}</td>
+            <td style="font-family:'DM Mono',monospace;color:${rent>=0?'#2dd4a0':'#f96b6b'}">${rent>=0?'+':''}${rent.toFixed(2)}%</td>
+          </tr>`;
+        }).join('')}
+        <tr style="font-weight:600;background:#f8f9fa">
+          <td colspan="2">Total</td>
+          <td style="font-family:'DM Mono',monospace">${fmt(invAportado)}</td>
+          <td style="font-family:'DM Mono',monospace">${fmt(invTotal)}</td>
+          <td style="font-family:'DM Mono',monospace;color:${rentTotal>=0?'#2dd4a0':'#f96b6b'}">${rentTotal>=0?'+':''}${rentTotal.toFixed(2)}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`:''}
+
+  <!-- Últimas transações -->
+  <div class="section">
+    <div class="section-title">Últimas transações do mês</div>
+    <table>
+      <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Pagamento</th><th style="text-align:right">Valor</th></tr></thead>
+      <tbody>
+        ${ultimas.map(t=>`<tr>
+          <td style="color:#888;white-space:nowrap">${new Date(t.data+'T00:00:00').toLocaleDateString('pt-BR')}</td>
+          <td>${t.descricao}${t.parcelas>1?` <span style="font-size:10px;color:#f5a623">${t.parcela_atual}/${t.parcelas}x</span>`:''}</td>
+          <td><span class="badge ${t.tipo==='receita'?'green':'blue'}">${t.categoria}</span></td>
+          <td style="font-size:11px;color:#888">${pagLabel[t.forma_pagamento]||'—'}${t.cartao?' · '+cartaoLabel[t.cartao]:''}</td>
+          <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:${t.tipo==='receita'?'#2dd4a0':'#f96b6b'}">${t.tipo==='receita'?'+':'-'}${fmt(t.valor)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Parcelas futuras -->
+  ${futuras.length?`<div class="section">
+    <div class="section-title">Parcelas futuras — próximos 30 dias</div>
+    <table>
+      <thead><tr><th>Data</th><th>Descrição</th><th>Parcela</th><th>Cartão</th><th style="text-align:right">Valor</th></tr></thead>
+      <tbody>
+        ${futuras.map(t=>`<tr>
+          <td style="color:#888;white-space:nowrap">${new Date(t.data+'T00:00:00').toLocaleDateString('pt-BR')}</td>
+          <td>${t.descricao}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${t.parcela_atual}/${t.parcelas}</td>
+          <td style="font-size:11px;color:#888">${t.cartao?cartaoLabel[t.cartao]:'—'}</td>
+          <td style="text-align:right;font-family:'DM Mono',monospace;color:#f96b6b">-${fmt(t.valor)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`:''}
+
+  <div class="footer">
+    <span>Finanças Pessoais — Relatório mensal</span>
+    <span>${MESES[mesMes]}/${mesAno}</span>
+  </div>
+
+</div>
+<scri\pt>window.onload=()=>window.print()</scri\pt>
+</body>\n</html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(!w)toast('Permita pop-ups para gerar o PDF','err');
+  else toast('Abrindo para imprimir como PDF...');
 }
 
 carregarTudo();
