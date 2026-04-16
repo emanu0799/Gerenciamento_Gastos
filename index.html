@@ -437,9 +437,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </div>
       <div class="form-group"><label class="form-label">Valor aportado (R$)</label><input class="form-input" id="inv-aportado" type="text" inputmode="decimal" placeholder="0,00"></div>
       <div class="form-group"><label class="form-label">Saldo atual (R$)</label><input class="form-input" id="inv-saldo" type="text" inputmode="decimal" placeholder="0,00"></div>
-      <div class="form-group full"><label class="form-label">Data de início</label><input class="form-input" id="inv-data" type="date"></div>
+      <div class="form-group"><label class="form-label">Data de início</label><input class="form-input" id="inv-data" type="date"></div>
+      <div class="form-group"><label class="form-label">% do CDI (ex: 115)</label><input class="form-input" id="inv-cdi" type="text" inputmode="decimal" placeholder="100" oninput="this.value=this.value.replace(/[^0-9.,]/g,'')"></div>
+      <div class="form-group full" id="cdi-info" style="display:none">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--text2)" id="cdi-calc-txt">Buscando CDI...</div>
+      </div>
     </div>
     <div class="modal-btns">
+      <button class="btn" onclick="buscarCDI()">&#x1F4C8; Calcular CDI</button>
       <button class="btn" onclick="fecharModalInv()">Cancelar</button>
       <button class="btn primary" id="btn-salvar-inv" onclick="salvarInv()">Salvar</button>
     </div>
@@ -458,6 +463,77 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="modal-btns">
       <button class="btn" onclick="document.getElementById('modal-inv-update').classList.remove('open')">Cancelar</button>
       <button class="btn primary" onclick="atualizarInv()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Transação -->
+<div class="modal-overlay" id="modal-edit-tx">
+  <div class="modal">
+    <div class="modal-title">Editar transação</div>
+    <input type="hidden" id="edit-tx-id">
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Descrição</label><input class="form-input" id="edit-desc" placeholder="Descrição"></div>
+      <div class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="edit-val" type="text" inputmode="decimal" placeholder="0,00"></div>
+      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="edit-data" type="date"></div>
+      <div class="form-group full"><label class="form-label">Categoria</label><select class="form-input" id="edit-cat"></select></div>
+      <div class="form-group full"><label class="form-label">Forma de pagamento</label>
+        <select class="form-input" id="edit-pag" onchange="onChangeEditPag()">
+          <option value="pix">PIX</option><option value="debito">Débito</option><option value="credito">Crédito</option>
+        </select>
+      </div>
+      <div class="form-group full" id="edit-cartao-row" style="display:none"><label class="form-label">Cartão</label>
+        <select class="form-input" id="edit-cartao">
+          <option value="visa_bradesco">Visa Bradesco</option>
+          <option value="master_nubank">Mastercard Nubank</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalEditTx()">Cancelar</button>
+      <button class="btn primary" id="btn-update-tx" onclick="updateTx()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Investimento -->
+<div class="modal-overlay" id="modal-edit-inv">
+  <div class="modal">
+    <div class="modal-title">Editar investimento</div>
+    <input type="hidden" id="edit-inv-id">
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Nome</label><input class="form-input" id="edit-inv-nome"></div>
+      <div class="form-group full"><label class="form-label">Tipo</label>
+        <select class="form-input" id="edit-inv-tipo">
+          <option>CDB</option><option>Tesouro Direto</option><option>Ações</option>
+          <option>FII</option><option>Poupança</option><option>LCI/LCA</option><option>Criptomoedas</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Valor aportado (R$)</label><input class="form-input" id="edit-inv-aportado" type="text" inputmode="decimal" placeholder="0,00"></div>
+      <div class="form-group"><label class="form-label">Saldo atual (R$)</label><input class="form-input" id="edit-inv-saldo" type="text" inputmode="decimal" placeholder="0,00"></div>
+      <div class="form-group"><label class="form-label">% do CDI</label><input class="form-input" id="edit-inv-cdi" type="text" inputmode="decimal" placeholder="100" oninput="this.value=this.value.replace(/[^0-9.,]/g,'')"></div>
+      <div class="form-group"><label class="form-label">Data de início</label><input class="form-input" id="edit-inv-data" type="date"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalEditInv()">Cancelar</button>
+      <button class="btn primary" onclick="updateInv()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Meta -->
+<div class="modal-overlay" id="modal-edit-meta">
+  <div class="modal">
+    <div class="modal-title">Editar meta</div>
+    <input type="hidden" id="edit-meta-id">
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Nome</label><input class="form-input" id="edit-meta-nome"></div>
+      <div class="form-group"><label class="form-label">Valor alvo (R$)</label><input class="form-input" id="edit-meta-alvo" type="text" inputmode="decimal" placeholder="0,00"></div>
+      <div class="form-group"><label class="form-label">Já tenho (R$)</label><input class="form-input" id="edit-meta-atual" type="text" inputmode="decimal" placeholder="0,00"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalEditMeta()">Cancelar</button>
+      <button class="btn primary" onclick="updateMeta()">Salvar alterações</button>
     </div>
   </div>
 </div>
@@ -706,7 +782,7 @@ function renderTxs(){
       <div class="tx-amount ${t.tipo==='receita'?'green':'red'}">${t.tipo==='receita'?'+':'-'}${fmt(t.valor)}</div>
       ${t.parcelas>1?`<div class="tx-amount-sub">${t.parcelas}x ${fmt(Number(t.valor))}</div>`:''}
     </div>
-    <button class="tx-del" onclick="delTx(${t.id})">✕</button>
+    <button class="tx-del" onclick="abrirEditTx(${t.id})" style="color:var(--text3);font-size:12px;padding:4px 6px" title="Editar">✎</button><button class="tx-del" onclick="delTx(${t.id})">✕</button>
   </div>`).join('');
   const sel=document.getElementById('filtro-cat');
   const allCats=[...new Set(txsMes().map(t=>t.categoria))];
@@ -744,7 +820,7 @@ function renderInv(){
           <span class="inv-tipo" style="background:${cor}22;color:${cor}">${inv.tipo}</span>
         </div>
         <div style="display:flex;gap:6px">
-          <button class="btn sm" onclick="abrirModalInvUpdate(${inv.id},${inv.saldo_atual})">Atualizar</button>
+          <button class="btn sm" onclick="abrirEditInv(${inv.id})">Editar</button><button class="btn sm" onclick="abrirModalInvUpdate(${inv.id},${inv.saldo_atual})">Atualizar saldo</button>
           <button class="btn sm danger" onclick="delInv(${inv.id})">✕</button>
         </div>
       </div>
@@ -753,11 +829,11 @@ function renderInv(){
         <div class="inv-val-item"><div class="inv-val-label">Saldo atual</div><div class="inv-val-num" style="color:${cor}">${fmt(inv.saldo_atual)}</div></div>
         <div class="inv-val-item"><div class="inv-val-label">Rentabilidade</div><div class="inv-val-num ${rent>=0?'green':'red'}">${fmtPct(rent)} <span style="font-size:11px">(${fmt(lucro)})</span></div></div>
       </div>
-      <div style="font-size:10px;color:var(--text3)">Desde ${new Date(inv.data_inicio+'T00:00:00').toLocaleDateString('pt-BR')}</div>
+      <div style="font-size:10px;color:var(--text3)">Desde ${new Date(inv.data_inicio+'T00:00:00').toLocaleDateString('pt-BR')}${inv.percentual_cdi?' · <span style="color:var(--amber)">'+inv.percentual_cdi+'% do CDI</span>':''}</div>
     </div>`;
   }).join('');
 }
-function abrirModalInv(){editInvId=null;document.getElementById('inv-modal-title').textContent='Novo investimento';document.getElementById('inv-nome').value='';document.getElementById('inv-tipo').value='CDB';document.getElementById('inv-aportado').value='';document.getElementById('inv-saldo').value='';document.getElementById('inv-data').value=new Date().toISOString().slice(0,10);document.getElementById('modal-inv').classList.add('open');setTimeout(aplicaMascaras,50);}
+function abrirModalInv(){editInvId=null;document.getElementById('inv-modal-title').textContent='Novo investimento';document.getElementById('inv-nome').value='';document.getElementById('inv-tipo').value='CDB';document.getElementById('inv-aportado').value='';document.getElementById('inv-saldo').value='';document.getElementById('inv-data').value=new Date().toISOString().slice(0,10);document.getElementById('inv-cdi').value='';document.getElementById('cdi-info').style.display='none';document.getElementById('modal-inv').classList.add('open');setTimeout(aplicaMascaras,50);}
 function fecharModalInv(){document.getElementById('modal-inv').classList.remove('open');}
 async function salvarInv(){
   const nome=document.getElementById('inv-nome').value.trim();
@@ -767,7 +843,8 @@ async function salvarInv(){
   const dt=document.getElementById('inv-data').value;
   if(!nome||!ap||!sal||!dt)return;
   const btn=document.getElementById('btn-salvar-inv');btn.textContent='Salvando...';btn.disabled=true;
-  const {data:novo,error}=await sb.from('investimentos').insert({nome,tipo,valor_aportado:ap,saldo_atual:sal,data_inicio:dt}).select().single();
+  const pctCdi=parseFloat(document.getElementById('inv-cdi').value.replace(',','.'))||null;
+  const {data:novo,error}=await sb.from('investimentos').insert({nome,tipo,valor_aportado:ap,saldo_atual:sal,data_inicio:dt,percentual_cdi:pctCdi}).select().single();
   btn.textContent='Salvar';btn.disabled=false;
   if(error){toast('Erro ao salvar','err');return;}
   investimentos.push(novo);fecharModalInv();toast('Investimento salvo!');renderInv();
@@ -806,7 +883,7 @@ function renderMetas(){
   el.innerHTML=metas.map((m,i)=>{
     const pct=m.alvo>0?Math.min(100,Math.round((m.atual/m.alvo)*100)):0;
     const cor=META_CORES[i%META_CORES.length];
-    return`<div class="goal-item"><div class="goal-head"><div><div class="goal-name">${m.nome}</div><div class="goal-vals">${fmt(m.atual)} de ${fmt(m.alvo)} · faltam ${fmt(Math.max(0,m.alvo-m.atual))}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="goal-pct" style="color:${cor}">${pct}%</div><button class="tx-del" onclick="delMeta(${m.id})">✕</button></div></div><div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${cor}"></div></div>${pct<100?`<div class="goal-aporte"><input class="form-input" id="ap-${m.id}" type="text" inputmode="decimal" placeholder="0,00" style="flex:1" oninput="mascaraBR(this)"><button class="btn sm primary" onclick="aportar(${m.id})">Aportar</button></div>`:'<div style="text-align:center;color:var(--green);font-size:13px;font-weight:600">Meta concluída! 🎉</div>'}</div>`;
+    return`<div class="goal-item"><div class="goal-head"><div><div class="goal-name">${m.nome}</div><div class="goal-vals">${fmt(m.atual)} de ${fmt(m.alvo)} · faltam ${fmt(Math.max(0,m.alvo-m.atual))}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="goal-pct" style="color:${cor}">${pct}%</div><button class="tx-del" onclick="abrirEditMeta(${m.id})" style="font-size:12px;padding:4px 6px" title="Editar">✎</button><button class="tx-del" onclick="delMeta(${m.id})">✕</button></div></div><div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${cor}"></div></div>${pct<100?`<div class="goal-aporte"><input class="form-input" id="ap-${m.id}" type="text" inputmode="decimal" placeholder="0,00" style="flex:1" oninput="mascaraBR(this)"><button class="btn sm primary" onclick="aportar(${m.id})">Aportar</button></div>`:'<div style="text-align:center;color:var(--green);font-size:13px;font-weight:600">Meta concluída! 🎉</div>'}</div>`;
   }).join('');
 }
 function abrirModalMeta(){document.getElementById('mf-nome').value='';document.getElementById('mf-alvo').value='';document.getElementById('mf-atual').value='';document.getElementById('modal-meta').classList.add('open');setTimeout(aplicaMascaras,50);}
@@ -953,7 +1030,7 @@ function parseBR(s){
   return parseFloat(s.replace(/\./g,'').replace(',','.'));
 }
 function aplicaMascaras(){
-  const ids=['f-val','inv-aportado','inv-saldo','inv-update-aporte','inv-update-saldo','mf-alvo','mf-atual','al-limite'];
+  const ids=['f-val','inv-aportado','inv-saldo','inv-update-aporte','inv-update-saldo','mf-alvo','mf-atual','al-limite','edit-val','edit-inv-aportado','edit-inv-saldo','edit-meta-alvo','edit-meta-atual'];
   ids.forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el._mask){
@@ -1010,6 +1087,161 @@ document.getElementById('modal-inv').addEventListener('click',e=>{if(e.target===
 document.getElementById('modal-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalMeta();});
 document.getElementById('modal-alerta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalAlerta();});
 document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditTx();});
+document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
+document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
+
+
+// ── CDI BACEN ─────────────────────────────────────────────────
+let cdiAtual = null;
+async function fetchCDI(){
+  if(cdiAtual!==null)return cdiAtual;
+  try{
+    // API BACEN série 4389 = CDI diário
+    const res=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json');
+    const data=await res.json();
+    cdiAtual=parseFloat(data[0].valor); // taxa anual em %
+    return cdiAtual;
+  }catch(e){return null;}
+}
+
+async function buscarCDI(){
+  const pct=parseFloat(document.getElementById('inv-cdi').value.replace(',','.'));
+  const ap=parseBR(document.getElementById('inv-aportado').value);
+  const dataInicio=document.getElementById('inv-data').value;
+  const info=document.getElementById('cdi-info');
+  const txt=document.getElementById('cdi-calc-txt');
+  info.style.display='block';
+  txt.textContent='Buscando CDI...';
+  const cdi=await fetchCDI();
+  if(!cdi){txt.textContent='Não foi possível buscar o CDI. Verifique sua conexão.';return;}
+  const taxaEfetiva=(pct/100)*cdi;
+  let projecao='';
+  if(ap&&dataInicio){
+    const dias=Math.max(1,Math.round((new Date()-new Date(dataInicio+'T00:00:00'))/(1000*60*60*24)));
+    const meses=dias/30;
+    const saldoProj=ap*Math.pow(1+taxaEfetiva/100,meses/12);
+    const lucroProj=saldoProj-ap;
+    projecao=` | Projeção atual: <b style="color:var(--green)">${fmt(saldoProj)}</b> (+${fmt(lucroProj)})`;
+  }
+  txt.innerHTML=`CDI atual: <b>${cdi.toFixed(2)}%</b> ao ano · ${pct||'?'}% do CDI = <b>${taxaEfetiva.toFixed(2)}%</b> a.a.${projecao}`;
+}
+
+async function buscarCDIInv(id){
+  const inv=investimentos.find(i=>i.id===id);
+  if(!inv||!inv.percentual_cdi)return;
+  const cdi=await fetchCDI();
+  if(!cdi)return;
+  const taxaEfetiva=(inv.percentual_cdi/100)*cdi;
+  const dias=Math.max(1,Math.round((new Date()-new Date(inv.data_inicio+'T00:00:00'))/(1000*60*60*24)));
+  const meses=dias/30;
+  const saldoProj=Number(inv.valor_aportado)*Math.pow(1+taxaEfetiva/100,meses/12);
+  return{cdi,taxaEfetiva,saldoProj,lucroProj:saldoProj-Number(inv.valor_aportado)};
+}
+
+// ── EDITAR TRANSAÇÃO ──────────────────────────────────────────
+function abrirEditTx(id){
+  const t=txs.find(x=>x.id===id);if(!t)return;
+  document.getElementById('edit-tx-id').value=id;
+  document.getElementById('edit-desc').value=t.descricao;
+  document.getElementById('edit-val').value=Number(t.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('edit-data').value=t.data;
+  document.getElementById('edit-pag').value=t.forma_pagamento||'pix';
+  if(t.cartao)document.getElementById('edit-cartao').value=t.cartao;
+  const cats=t.tipo==='receita'?CATS_R:CATS_D;
+  document.getElementById('edit-cat').innerHTML=cats.map(c=>`<option${c===t.categoria?' selected':''}>${c}</option>`).join('');
+  onChangeEditPag();
+  document.getElementById('modal-edit-tx').classList.add('open');
+  setTimeout(()=>{
+    const el=document.getElementById('edit-val');
+    if(el&&!el._mask){el._mask=true;el.addEventListener('input',()=>mascaraBR(el));el.addEventListener('blur',()=>mascaraBR(el));}
+    const em=document.getElementById('edit-meta-alvo');
+    if(em&&!em._mask){em._mask=true;em.addEventListener('input',()=>mascaraBR(em));em.addEventListener('blur',()=>mascaraBR(em));}
+  },50);
+}
+function fecharModalEditTx(){document.getElementById('modal-edit-tx').classList.remove('open');}
+function onChangeEditPag(){
+  const pag=document.getElementById('edit-pag').value;
+  document.getElementById('edit-cartao-row').style.display=(pag==='credito'||pag==='debito')?'block':'none';
+}
+async function updateTx(){
+  const id=parseInt(document.getElementById('edit-tx-id').value);
+  const descricao=document.getElementById('edit-desc').value.trim();
+  const valor=parseBR(document.getElementById('edit-val').value);
+  const data=document.getElementById('edit-data').value;
+  const categoria=document.getElementById('edit-cat').value;
+  const forma_pagamento=document.getElementById('edit-pag').value;
+  const cartao=(['credito','debito'].includes(forma_pagamento))?document.getElementById('edit-cartao').value:null;
+  if(!descricao||!valor||!data)return;
+  const btn=document.getElementById('btn-update-tx');btn.textContent='Salvando...';btn.disabled=true;
+  const {error}=await sb.from('transacoes').update({descricao,valor,data,categoria,forma_pagamento,cartao}).eq('id',id);
+  btn.textContent='Salvar alterações';btn.disabled=false;
+  if(error){toast('Erro ao atualizar','err');return;}
+  txs=txs.map(t=>t.id===id?{...t,descricao,valor,data,categoria,forma_pagamento,cartao}:t);
+  fecharModalEditTx();toast('Transação atualizada!');renderAll();
+}
+
+// ── EDITAR INVESTIMENTO ───────────────────────────────────────
+function abrirEditInv(id){
+  const inv=investimentos.find(i=>i.id===id);if(!inv)return;
+  document.getElementById('edit-inv-id').value=id;
+  document.getElementById('edit-inv-nome').value=inv.nome;
+  document.getElementById('edit-inv-tipo').value=inv.tipo;
+  document.getElementById('edit-inv-aportado').value=Number(inv.valor_aportado).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('edit-inv-saldo').value=Number(inv.saldo_atual).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('edit-inv-cdi').value=inv.percentual_cdi||'';
+  document.getElementById('edit-inv-data').value=inv.data_inicio;
+  document.getElementById('modal-edit-inv').classList.add('open');
+  setTimeout(()=>{
+    ['edit-inv-aportado','edit-inv-saldo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&!el._mask){el._mask=true;el.addEventListener('input',()=>mascaraBR(el));el.addEventListener('blur',()=>mascaraBR(el));}
+    });
+  },50);
+}
+function fecharModalEditInv(){document.getElementById('modal-edit-inv').classList.remove('open');}
+async function updateInv(){
+  const id=parseInt(document.getElementById('edit-inv-id').value);
+  const nome=document.getElementById('edit-inv-nome').value.trim();
+  const tipo=document.getElementById('edit-inv-tipo').value;
+  const valor_aportado=parseBR(document.getElementById('edit-inv-aportado').value);
+  const saldo_atual=parseBR(document.getElementById('edit-inv-saldo').value);
+  const percentual_cdi=parseFloat(document.getElementById('edit-inv-cdi').value.replace(',','.'))||null;
+  const data_inicio=document.getElementById('edit-inv-data').value;
+  if(!nome||!valor_aportado||!saldo_atual)return;
+  const {error}=await sb.from('investimentos').update({nome,tipo,valor_aportado,saldo_atual,percentual_cdi,data_inicio}).eq('id',id);
+  if(error){toast('Erro ao atualizar','err');return;}
+  investimentos=investimentos.map(i=>i.id===id?{...i,nome,tipo,valor_aportado,saldo_atual,percentual_cdi,data_inicio}:i);
+  fecharModalEditInv();toast('Investimento atualizado!');renderInv();renderDash();
+}
+
+// ── EDITAR META ───────────────────────────────────────────────
+function abrirEditMeta(id){
+  const m=metas.find(x=>x.id===id);if(!m)return;
+  document.getElementById('edit-meta-id').value=id;
+  document.getElementById('edit-meta-nome').value=m.nome;
+  document.getElementById('edit-meta-alvo').value=Number(m.alvo).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('edit-meta-atual').value=Number(m.atual).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('modal-edit-meta').classList.add('open');
+  setTimeout(()=>{
+    ['edit-meta-alvo','edit-meta-atual'].forEach(fid=>{
+      const el=document.getElementById(fid);
+      if(el&&!el._mask){el._mask=true;el.addEventListener('input',()=>mascaraBR(el));el.addEventListener('blur',()=>mascaraBR(el));}
+    });
+  },50);
+}
+function fecharModalEditMeta(){document.getElementById('modal-edit-meta').classList.remove('open');}
+async function updateMeta(){
+  const id=parseInt(document.getElementById('edit-meta-id').value);
+  const nome=document.getElementById('edit-meta-nome').value.trim();
+  const alvo=parseBR(document.getElementById('edit-meta-alvo').value);
+  const atual=parseBR(document.getElementById('edit-meta-atual').value);
+  if(!nome||!alvo)return;
+  const {error}=await sb.from('metas').update({nome,alvo,atual}).eq('id',id);
+  if(error){toast('Erro ao atualizar','err');return;}
+  metas=metas.map(m=>m.id===id?{...m,nome,alvo,atual}:m);
+  fecharModalEditMeta();toast('Meta atualizada!');renderMetas();
+}
 
 carregarTudo();
 </script>
