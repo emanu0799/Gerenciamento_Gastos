@@ -1,15 +1,8 @@
-const CACHE = 'financas-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-];
+const CACHE = 'simplo-v2';
+const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS).catch(() => {}))
-  );
+  e.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS).catch(()=>{})));
   self.skipWaiting();
 });
 
@@ -23,22 +16,16 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Supabase e APIs externas: sempre buscar da rede
-  if (e.request.url.includes('supabase.co') ||
-      e.request.url.includes('anthropic.com') ||
-      e.request.url.includes('bcb.gov.br')) {
+  if(e.request.url.includes('supabase.co')||e.request.url.includes('anthropic.com')||e.request.url.includes('bcb.gov.br')||e.request.url.includes('googleapis.com')){
     return;
   }
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res && res.status === 200 && res.type === 'basic') {
-          const clone = res.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => caches.match('/index.html'));
-    })
+    fetch(e.request).then(res => {
+      if(res&&res.status===200&&res.type==='basic'){
+        const clone=res.clone();
+        caches.open(CACHE).then(cache=>cache.put(e.request,clone));
+      }
+      return res;
+    }).catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
   );
 });
