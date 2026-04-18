@@ -849,7 +849,7 @@ select.form-input{height:42px}
     <div class="form-grid">
       <div class="form-group full"><label class="form-label">Descrição</label><input class="form-input" id="f-desc" placeholder="Ex: Compra no shopping..."></div>
       <div class="form-group"><label class="form-label">Valor total (R$)</label><input class="form-input" id="f-val" type="text" inputmode="decimal" placeholder="0,00" oninput="calcParcela()"></div>
-      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="f-data" type="date" onchange="atualizaInfoParcela()" style="height:42px"></div>
+      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="f-data-display" type="text" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" style="height:42px"><input type="hidden" id="f-data"></div>
       <div class="form-group full"><label class="form-label">Categoria</label><select class="form-input" id="f-cat"></select></div>
       <div class="form-group full"><label class="form-label">Forma de pagamento</label>
         <select class="form-input" id="f-pag" onchange="onChangePag()">
@@ -1952,7 +1952,7 @@ function abrirModal(){
   document.getElementById('tipo-rec').className='tipo-btn';
   document.getElementById('f-desc').value='';
   document.getElementById('f-val').value='';
-  document.getElementById('f-data').value=new Date().toISOString().slice(0,10);
+  setTimeout(initDataDisplay,50);
   document.getElementById('f-pag').value='pix';
   document.getElementById('f-parcelas').value='1';if(document.getElementById('f-parcela-atual'))document.getElementById('f-parcela-atual').innerHTML='<option value="0">Nenhuma — é compra nova</option>';
   document.getElementById('f-parcela-val').value='';
@@ -3168,6 +3168,36 @@ function sincronizaDataHidden(){
 
 function atualizaDataMes(){
   sincronizaDataHidden();
+}
+
+// ── MÁSCARA DATA ─────────────────────────────────────────────
+function mascaraData(el){
+  let v = el.value.replace(/\D/g,'');
+  if(v.length > 2) v = v.slice(0,2)+'/'+v.slice(2);
+  if(v.length > 5) v = v.slice(0,5)+'/'+v.slice(5);
+  el.value = v.slice(0,10);
+  // Sincronizar com hidden field (YYYY-MM-DD)
+  if(v.length === 10){
+    const parts = v.split('/');
+    const dia=parts[0],mes=parts[1],ano=parts[2];
+    if(dia&&mes&&ano&&ano.length===4){
+      document.getElementById('f-data').value = `${ano}-${mes}-${dia}`;
+      atualizaInfoParcela();
+    }
+  }
+}
+
+function initDataDisplay(){
+  const hidden = document.getElementById('f-data');
+  const display = document.getElementById('f-data-display');
+  if(!hidden||!display) return;
+  // Preencher com data de hoje no formato DD/MM/AAAA
+  const hoje = new Date();
+  const dia = String(hoje.getDate()).padStart(2,'0');
+  const mes = String(hoje.getMonth()+1).padStart(2,'0');
+  const ano = hoje.getFullYear();
+  display.value = `${dia}/${mes}/${ano}`;
+  hidden.value = `${ano}-${mes}-${dia}`;
 }
 
 // ── TEMA ──────────────────────────────────────────────────────
