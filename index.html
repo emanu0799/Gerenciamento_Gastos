@@ -255,10 +255,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   .modal{width:100% !important;max-width:100% !important;border-radius:var(--radius) var(--radius) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh;overflow-y:auto}
   .modal-overlay{align-items:flex-end}
   /* Perfil dropdown */
-  #perfil-menu{left:8px;right:auto;width:200px;top:52px !important;bottom:auto !important;z-index:9999}
+  #perfil-menu{left:auto;right:8px;width:200px;top:auto !important;bottom:120px !important;z-index:9999}
   /* Dois col forms */
-  .form-grid{grid-template-columns:1fr !important}
+  .form-grid{grid-template-columns:1fr !important;gap:8px}
   .form-grid .full{grid-column:1}
+  .modal{padding:20px 16px}
   /* Login box */
   .login-box{padding:24px 20px;border-radius:var(--radius);width:90vw;margin:auto}
   .login-screen{align-items:center;justify-content:center}
@@ -589,15 +590,28 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <!-- TRANSAÇÕES -->
 <div class="section" id="sec-transacoes">
   <div class="mobile-header">
-    <div style="font-size:15px;font-weight:600">Transações</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:15px;font-weight:600">Transações</div>
+      <div class="month-sel" style="padding:3px 8px">
+        <button onclick="mudaMes(-1)" style="font-size:13px">&#8249;</button>
+        <span id="mes-label-tx-mob" style="font-size:11px;min-width:60px;text-align:center"></span>
+        <button onclick="mudaMes(1)" style="font-size:13px">&#8250;</button>
+      </div>
+    </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob-sec-transacoes" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
     <div><div class="page-title">Transações</div><div class="page-sub" id="tx-sub"></div></div>
-    <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="month-sel">
+        <button onclick="mudaMes(-1)">&#8249;</button>
+        <span id="mes-label-tx" style="font-size:12px;min-width:80px;text-align:center"></span>
+        <button onclick="mudaMes(1)">&#8250;</button>
+      </div>
+      <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
+    </div>
   </div>
   <div class="tx-filters">
     <button class="tx-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
@@ -758,15 +772,34 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 </div>
 
 <!-- Mobile nav -->
+<!-- Menu "Mais" mobile -->
+<div id="mob-mais-menu" style="display:none;position:fixed;bottom:60px;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);z-index:199;padding:8px 0">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+    <button onclick="setSection('cartoes');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cartões
+    </button>
+    <button onclick="setSection('alertas');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif;position:relative">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="badge-alertas-mob" style="display:none;position:absolute;top:8px;right:18px;background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px">!</span>
+      Alertas
+    </button>
+    <button onclick="setSection('ia');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>IA
+    </button>
+    <button onclick="togglePerfilMenu(event);closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Perfil
+    </button>
+  </div>
+</div>
+
 <nav class="mobile-nav">
   <button class="mobile-nav-btn active" onclick="setSection('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home</button>
   <button class="mobile-nav-btn" onclick="setSection('transacoes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Transações</button>
-  <button class="mobile-nav-btn" onclick="setSection('cartoes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cartões</button>
+  <button class="mobile-nav-btn" onclick="setSection('investimentos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Invest.</button>
   <button class="mobile-nav-btn" onclick="setSection('metas')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas</button>
-  <button class="mobile-nav-btn" onclick="setSection('alertas')" style="position:relative">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    <span id="badge-alertas-mob" style="display:none;position:absolute;top:6px;right:6px;background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px">!</span>
-    Alertas
+  <button class="mobile-nav-btn" id="mob-mais-btn" onclick="toggleMobMais()">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="17" height="17"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    Mais
   </button>
 </nav>
 
@@ -1186,7 +1219,7 @@ function setSection(sec){
   const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,categorias:6,ia:7};
   document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
   // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
-  const mIdx={dashboard:0,transacoes:1,cartoes:2,metas:3,alertas:4};
+  const mIdx={dashboard:0,transacoes:1,investimentos:2,metas:3};
   document.querySelectorAll('.mobile-nav-btn')[mIdx[sec]??4]?.classList.add('active');
   // Scroll to top
   document.querySelector('.main')?.scrollTo(0,0);
@@ -1223,6 +1256,10 @@ function renderDash(){
   document.getElementById('mes-label').textContent=MESES_S[mesMes]+' '+mesAno;
   const mobLabel=document.getElementById('mes-label-mob');
   if(mobLabel)mobLabel.textContent=MESES_S[mesMes]+' '+mesAno;
+  const txLabel=document.getElementById('mes-label-tx');
+  if(txLabel)txLabel.textContent=MESES_S[mesMes]+' '+mesAno;
+  const txLabelMob=document.getElementById('mes-label-tx-mob');
+  if(txLabelMob)txLabelMob.textContent=MESES_S[mesMes]+' '+mesAno;
   document.getElementById('dash-sub').textContent=MESES[mesMes]+' de '+mesAno;
   document.getElementById('tx-sub').textContent=MESES[mesMes]+' de '+mesAno;
   const {catMap,disparados}=checkAlertas();
@@ -3008,6 +3045,26 @@ function toggleSenha(){
     icon.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
   }
 }
+
+function toggleMobMais(){
+  const m = document.getElementById('mob-mais-menu');
+  const isOpen = m.style.display === 'block';
+  m.style.display = isOpen ? 'none' : 'block';
+  document.getElementById('mob-mais-btn').style.color = isOpen ? '' : 'var(--green)';
+}
+function closeMobMais(){
+  document.getElementById('mob-mais-menu').style.display = 'none';
+  document.getElementById('mob-mais-btn').style.color = '';
+}
+// Fechar menu mais ao clicar fora
+document.addEventListener('click', e => {
+  const menu = document.getElementById('mob-mais-menu');
+  const btn = document.getElementById('mob-mais-btn');
+  if(menu && btn && !menu.contains(e.target) && !btn.contains(e.target)){
+    menu.style.display = 'none';
+    btn.style.color = '';
+  }
+});
 
 function togglePerfilMenu(e){
   if(e){e.stopPropagation();e.preventDefault();}
