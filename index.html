@@ -298,6 +298,16 @@ select.form-input{height:42px}
 .metric-sm-val{font-size:14px;font-weight:600;font-family:'DM Mono',monospace}
 
 
+
+/* ── RECORRENTES ─────────────────────────────── */
+.rec-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.rec-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-desc{font-size:13.5px;font-weight:500}
+.rec-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.rec-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;white-space:nowrap;text-align:right}
+.pendente-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.pendente-item.editing{border-color:var(--green)}
 /* ── CATEGORIAS ─────────────────────────────── */
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
 .cat-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative}
@@ -467,6 +477,10 @@ select.form-input{height:42px}
   <button class="nav-item" onclick="setSection('cartoes')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
     Cartões
+  </button>
+  <button class="nav-item" onclick="setSection('recorrentes')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    Recorrentes
   </button>
   <button class="nav-item" onclick="setSection('categorias')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h8M4 18h4"/><circle cx="18" cy="15" r="3"/><path d="m21 18-1.5-1.5"/></svg>
@@ -700,6 +714,36 @@ select.form-input{height:42px}
     <button class="topbar-btn" onclick="abrirModalCartao()">+ Cartão</button>
   </div>
   <div id="cartoes-lista"></div>
+</div>
+
+<!-- RECORRENTES -->
+<div class="section" id="sec-recorrentes">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Recorrentes</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalRecorrente()" style="padding:6px 10px;font-size:11px">+</button>
+      <div onclick="setSection('perfil')" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer" id="user-avatar-mob-rec">?</div>
+    </div>
+  </div>
+  <div class="page-header">
+    <div><div class="page-title">Recorrentes</div><div class="page-sub">Receitas e despesas fixas</div></div>
+    <button class="topbar-btn" onclick="abrirModalRecorrente()">+ Recorrente</button>
+  </div>
+  <!-- Pendentes do mês -->
+  <div id="rec-pendentes-wrap" style="display:none;margin-bottom:16px">
+    <div class="panel" style="border-color:var(--amber)">
+      <div class="panel-title" style="color:var(--amber)">
+        ⏳ Pendentes este mês
+        <button class="btn sm primary" onclick="confirmarTodos()">Confirmar todos</button>
+      </div>
+      <div id="rec-pendentes-lista"></div>
+    </div>
+  </div>
+  <!-- Lista de recorrentes -->
+  <div class="panel">
+    <div class="panel-title">Minhas recorrentes</div>
+    <div id="rec-lista"></div>
+  </div>
 </div>
 
 <!-- CATEGORIAS -->
@@ -1102,6 +1146,63 @@ select.form-input{height:42px}
   </div>
 </div>
 
+<!-- Modal Recorrente -->
+<div class="modal-overlay" id="modal-recorrente">
+  <div class="modal">
+    <div class="modal-title" id="rec-modal-title">Nova recorrente</div>
+    <input type="hidden" id="rec-edit-id">
+    <div class="tipo-toggle" style="margin-bottom:14px">
+      <button class="tipo-btn active-des" id="rec-tipo-des" onclick="setRecTipo('despesa')">Despesa</button>
+      <button class="tipo-btn" id="rec-tipo-rec" onclick="setRecTipo('receita')">Entrada</button>
+    </div>
+    <input type="hidden" id="rec-tipo-val" value="despesa">
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Descrição</label>
+        <input class="form-input" id="rec-desc" placeholder="Ex: Aluguel, Salário, Academia...">
+      </div>
+      <div class="form-group"><label class="form-label">Valor (R$)</label>
+        <input class="form-input" id="rec-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="mascaraBR(this)">
+      </div>
+      <div class="form-group"><label class="form-label">Dia do mês</label>
+        <select class="form-input" id="rec-dia">
+          ${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group full"><label class="form-label">Categoria</label>
+        <select class="form-input" id="rec-cat"></select>
+      </div>
+      <div class="form-group full"><label class="form-label">Forma de pagamento</label>
+        <select class="form-input" id="rec-pag">
+          <option value="pix">PIX</option>
+          <option value="debito">Débito</option>
+          <option value="credito">Crédito</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalRecorrente()">Cancelar</button>
+      <button class="btn primary" onclick="salvarRecorrente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar Recorrente -->
+<div class="modal-overlay" id="modal-confirmar-rec">
+  <div class="modal">
+    <div class="modal-title">Confirmar lançamento</div>
+    <input type="hidden" id="confirmar-rec-id">
+    <div id="confirmar-rec-info" style="font-size:13px;color:var(--text2);margin-bottom:14px"></div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Valor este mês (R$)</label>
+      <input class="form-input" id="confirmar-rec-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="mascaraBR(this)">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="document.getElementById('modal-confirmar-rec').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="confirmarRecorrente()">Lançar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Categoria -->
 <div class="modal-overlay" id="modal-categoria">
   <div class="modal">
@@ -1229,6 +1330,7 @@ async function carregarTudo(){
     txs=rt.data||[];metas=rm.data||[];investimentos=ri.data||[];alertas=ra.data||[];
     await carregarCartoes();
     await carregarCategorias();
+    await carregarRecorrentes();
     document.getElementById('db-dot').className='db-dot ok';
     document.getElementById('db-label').textContent='Conectado';
     document.getElementById('db-label').style.color='var(--green)';
@@ -1255,7 +1357,7 @@ function setSection(sec){
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
-  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,categorias:6,perfil:7,ia:8};
+  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,recorrentes:6,categorias:7,perfil:8,ia:9};
   document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
   // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
   const mIdx={dashboard:0,transacoes:1,investimentos:2,metas:3};
@@ -2089,6 +2191,8 @@ document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.targe
 document.getElementById('modal-senha').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-cartao').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCartao();});
 document.getElementById('modal-categoria').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCategoria();});
+document.getElementById('modal-recorrente').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalRecorrente();});
+document.getElementById('modal-confirmar-rec').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
 document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
 
@@ -2378,6 +2482,272 @@ function exportarRelatorio(){
 
 
 
+
+
+// ── RECORRENTES ───────────────────────────────────────────────
+let recorrentes = [];
+let lancamentos = [];
+let recTipoAtual = 'despesa';
+
+async function carregarRecorrentes(){
+  if(!currentUser) return;
+  const [rr, rl] = await Promise.all([
+    sb.from('recorrentes').select('*').order('dia_vencimento'),
+    sb.from('recorrentes_lancamentos').select('*').eq('mes', mesMes+1).eq('ano', mesAno)
+  ]);
+  if(!rr.error) recorrentes = rr.data||[];
+  if(!rl.error) lancamentos = rl.data||[];
+  renderRecorrentes();
+  checkPendentes();
+}
+
+function checkPendentes(){
+  // Recorrentes que ainda não foram lançados neste mês
+  const lancadosIds = new Set(lancamentos.map(l=>l.recorrente_id));
+  const pendentes = recorrentes.filter(r=>r.ativo && !lancadosIds.has(r.id));
+  const wrap = document.getElementById('rec-pendentes-wrap');
+  if(!wrap) return;
+  if(pendentes.length > 0){
+    wrap.style.display = 'block';
+    renderPendentes(pendentes);
+    // Banner no dashboard
+    const banner = document.getElementById('alertas-banner');
+    if(banner){
+      const txt = `⏳ Você tem <b>${pendentes.length}</b> lançamento(s) recorrente(s) pendente(s) este mês. <a href="#" onclick="setSection('recorrentes');return false" style="color:var(--amber);text-decoration:underline">Ver agora</a>`;
+      if(!banner.innerHTML.includes('recorrente')){
+        banner.style.display='block';
+        banner.innerHTML = (banner.innerHTML || '') + (banner.innerHTML ? ' · ' : '') + txt;
+        banner.style.borderColor = 'var(--amber)';
+        banner.style.color = 'var(--amber)';
+        banner.style.background = 'var(--amber-bg)';
+      }
+    }
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function renderPendentes(pendentes){
+  const el = document.getElementById('rec-pendentes-lista');
+  if(!el) return;
+  el.innerHTML = pendentes.map(r => `
+    <div class="pendente-item">
+      <div style="width:32px;height:32px;border-radius:8px;background:${r.tipo==='receita'?'var(--green-bg)':'var(--red-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg fill="none" stroke="${r.tipo==='receita'?'var(--green)':'var(--red)'}" stroke-width="2" viewBox="0 0 24 24" width="14" height="14">
+          ${r.tipo==='receita'?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}
+        </svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${r.descricao}</div>
+        <div style="font-size:11px;color:var(--text3)">Todo dia ${r.dia_vencimento} · ${r.categoria}</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:${r.tipo==='receita'?'var(--green)':'var(--red)'};margin-right:8px;white-space:nowrap">
+        ${r.tipo==='receita'?'+':'-'}${fmt(r.valor)}
+      </div>
+      <button class="btn sm primary" onclick="abrirConfirmarRec(${r.id})" style="white-space:nowrap">Lançar</button>
+    </div>`).join('');
+}
+
+function renderRecorrentes(){
+  const el = document.getElementById('rec-lista');
+  if(!el) return;
+  const lancadosIds = new Set(lancamentos.map(l=>l.recorrente_id));
+  if(!recorrentes.length){
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+      <div class="empty-title">Nenhuma recorrente cadastrada</div>
+      <div class="empty-sub">Cadastre seu salário, aluguel, academia — tudo que se repete todo mês.</div>
+      <button class="ob-btn" style="max-width:220px;padding:11px" onclick="abrirModalRecorrente()">+ Adicionar recorrente</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = recorrentes.map(r => {
+    const lancado = lancadosIds.has(r.id);
+    return `<div class="rec-item" style="opacity:${r.ativo?1:0.5}">
+      <div class="rec-icon" style="background:${r.tipo==='receita'?'var(--green-bg)':'var(--red-bg)'}">
+        <svg fill="none" stroke="${r.tipo==='receita'?'var(--green)':'var(--red)'}" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
+          ${r.tipo==='receita'?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}
+        </svg>
+      </div>
+      <div class="rec-info">
+        <div class="rec-desc">${r.descricao}</div>
+        <div class="rec-meta">Todo dia ${r.dia_vencimento} · ${r.categoria} · ${r.forma_pagamento?.toUpperCase()||'PIX'}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rec-val" style="color:${r.tipo==='receita'?'var(--green)':'var(--red)'}">
+          ${r.tipo==='receita'?'+':'-'}${fmt(r.valor)}
+        </div>
+        <div style="font-size:10px;margin-top:2px;color:${lancado?'var(--green)':'var(--text3)'}">
+          ${lancado?'✓ Lançado':'Pendente'}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-left:8px">
+        <button class="tx-del" onclick="editarRecorrente(${r.id})" style="font-size:12px">✎</button>
+        <button class="tx-del" onclick="toggleRecorrente(${r.id},${!r.ativo})" style="font-size:12px">${r.ativo?'⏸':'▶'}</button>
+        <button class="tx-del" onclick="deletarRecorrente(${r.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setRecTipo(tipo){
+  recTipoAtual = tipo;
+  document.getElementById('rec-tipo-val').value = tipo;
+  document.getElementById('rec-tipo-des').className = 'tipo-btn'+(tipo==='despesa'?' active-des':'');
+  document.getElementById('rec-tipo-rec').className = 'tipo-btn'+(tipo==='receita'?' active-rec':'');
+  // Atualizar categorias
+  const cats = getCatsParaTipo(tipo);
+  document.getElementById('rec-cat').innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+}
+
+function abrirModalRecorrente(){
+  document.getElementById('rec-modal-title').textContent = 'Nova recorrente';
+  document.getElementById('rec-edit-id').value = '';
+  document.getElementById('rec-desc').value = '';
+  document.getElementById('rec-valor').value = '';
+  document.getElementById('rec-dia').value = '1';
+  document.getElementById('rec-pag').value = 'pix';
+  recTipoAtual = 'despesa';
+  setRecTipo('despesa');
+  document.getElementById('modal-recorrente').classList.add('open');
+  setTimeout(()=>{
+    const el=document.getElementById('rec-valor');
+    if(el&&!el._mask){el._mask=true;el.addEventListener('input',()=>mascaraBR(el));el.addEventListener('blur',()=>mascaraBR(el));}
+  },50);
+}
+
+function fecharModalRecorrente(){ document.getElementById('modal-recorrente').classList.remove('open'); }
+
+function editarRecorrente(id){
+  const r = recorrentes.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('rec-modal-title').textContent = 'Editar recorrente';
+  document.getElementById('rec-edit-id').value = id;
+  document.getElementById('rec-desc').value = r.descricao;
+  document.getElementById('rec-valor').value = Number(r.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('rec-dia').value = r.dia_vencimento;
+  document.getElementById('rec-pag').value = r.forma_pagamento||'pix';
+  recTipoAtual = r.tipo;
+  setRecTipo(r.tipo);
+  document.getElementById('rec-cat').value = r.categoria;
+  document.getElementById('modal-recorrente').classList.add('open');
+}
+
+async function salvarRecorrente(){
+  const descricao = document.getElementById('rec-desc').value.trim();
+  const valor = parseBR(document.getElementById('rec-valor').value);
+  const dia_vencimento = parseInt(document.getElementById('rec-dia').value);
+  const categoria = document.getElementById('rec-cat').value;
+  const forma_pagamento = document.getElementById('rec-pag').value;
+  const tipo = document.getElementById('rec-tipo-val').value;
+  const editId = document.getElementById('rec-edit-id').value;
+  if(!descricao||!valor) return;
+  const payload = {descricao,valor,dia_vencimento,categoria,forma_pagamento,tipo,user_id:currentUser?.id};
+  let error;
+  if(editId){
+    ({error} = await sb.from('recorrentes').update(payload).eq('id',parseInt(editId)));
+    if(!error) recorrentes = recorrentes.map(r=>r.id===parseInt(editId)?{...r,...payload}:r);
+  } else {
+    const {data:nova,error:err} = await sb.from('recorrentes').insert(payload).select().single();
+    error = err;
+    if(!error) recorrentes.push(nova);
+  }
+  if(error){toast('Erro ao salvar','err');return;}
+  fecharModalRecorrente();
+  toast(editId?'Recorrente atualizada!':'Recorrente criada!');
+  renderRecorrentes();
+  checkPendentes();
+}
+
+async function toggleRecorrente(id, ativo){
+  const {error} = await sb.from('recorrentes').update({ativo}).eq('id',id);
+  if(error){toast('Erro','err');return;}
+  recorrentes = recorrentes.map(r=>r.id===id?{...r,ativo}:r);
+  renderRecorrentes();
+}
+
+async function deletarRecorrente(id){
+  if(!confirm('Remover esta recorrente?')) return;
+  const {error} = await sb.from('recorrentes').delete().eq('id',id);
+  if(error){toast('Erro','err');return;}
+  recorrentes = recorrentes.filter(r=>r.id!==id);
+  toast('Recorrente removida');
+  renderRecorrentes();
+  checkPendentes();
+}
+
+function abrirConfirmarRec(id){
+  const r = recorrentes.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('confirmar-rec-id').value = id;
+  document.getElementById('confirmar-rec-valor').value = Number(r.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('confirmar-rec-info').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:8px">
+      <div>
+        <div style="font-weight:500">${r.descricao}</div>
+        <div style="font-size:11px;color:var(--text3)">Todo dia ${r.dia_vencimento} · ${r.categoria}</div>
+      </div>
+      <div style="margin-left:auto;font-family:'DM Mono',monospace;color:${r.tipo==='receita'?'var(--green)':'var(--red)'}">${r.tipo==='receita'?'+':'-'}${fmt(r.valor)}</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px">Edite o valor abaixo se foi diferente este mês:</div>`;
+  document.getElementById('modal-confirmar-rec').classList.add('open');
+  setTimeout(()=>{
+    const el=document.getElementById('confirmar-rec-valor');
+    if(el&&!el._mask){el._mask=true;el.addEventListener('input',()=>mascaraBR(el));el.addEventListener('blur',()=>mascaraBR(el));}
+  },50);
+}
+
+async function confirmarRecorrente(){
+  const id = parseInt(document.getElementById('confirmar-rec-id').value);
+  const valor = parseBR(document.getElementById('confirmar-rec-valor').value);
+  const r = recorrentes.find(x=>x.id===id);
+  if(!r||!valor) return;
+  // Criar transação
+  const dataLanc = `${mesAno}-${String(mesMes+1).padStart(2,'0')}-${String(Math.min(r.dia_vencimento,28)).padStart(2,'0')}`;
+  const {data:tx,error:txErr} = await sb.from('transacoes').insert({
+    tipo:r.tipo, descricao:r.descricao, valor, categoria:r.categoria,
+    data:dataLanc, forma_pagamento:r.forma_pagamento, user_id:currentUser?.id
+  }).select().single();
+  if(txErr){toast('Erro ao lançar','err');return;}
+  txs.unshift(tx);
+  // Registrar lançamento
+  const {data:lanc,error:lErr} = await sb.from('recorrentes_lancamentos').insert({
+    recorrente_id:id, mes:mesMes+1, ano:mesAno,
+    valor_lancado:valor, transacao_id:tx.id, user_id:currentUser?.id
+  }).select().single();
+  if(!lErr) lancamentos.push(lanc);
+  document.getElementById('modal-confirmar-rec').classList.remove('open');
+  toast(`${r.descricao} lançado!`);
+  renderRecorrentes();
+  checkPendentes();
+  renderAll();
+}
+
+async function confirmarTodos(){
+  const lancadosIds = new Set(lancamentos.map(l=>l.recorrente_id));
+  const pendentes = recorrentes.filter(r=>r.ativo&&!lancadosIds.has(r.id));
+  if(!pendentes.length) return;
+  if(!confirm(`Confirmar ${pendentes.length} lançamento(s) com os valores padrão?`)) return;
+  for(const r of pendentes){
+    const dataLanc = `${mesAno}-${String(mesMes+1).padStart(2,'0')}-${String(Math.min(r.dia_vencimento,28)).padStart(2,'0')}`;
+    const {data:tx} = await sb.from('transacoes').insert({
+      tipo:r.tipo, descricao:r.descricao, valor:r.valor, categoria:r.categoria,
+      data:dataLanc, forma_pagamento:r.forma_pagamento, user_id:currentUser?.id
+    }).select().single();
+    if(tx){
+      txs.unshift(tx);
+      const {data:lanc} = await sb.from('recorrentes_lancamentos').insert({
+        recorrente_id:r.id, mes:mesMes+1, ano:mesAno,
+        valor_lancado:r.valor, transacao_id:tx.id, user_id:currentUser?.id
+      }).select().single();
+      if(lanc) lancamentos.push(lanc);
+    }
+  }
+  toast(`${pendentes.length} lançamento(s) confirmados!`);
+  renderRecorrentes();
+  checkPendentes();
+  renderAll();
+}
 
 // ── CATEGORIAS ────────────────────────────────────────────────
 let categorias = [];
@@ -2827,6 +3197,16 @@ function exportarPDF(){
   }
 
 
+
+/* ── RECORRENTES ─────────────────────────────── */
+.rec-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.rec-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-desc{font-size:13.5px;font-weight:500}
+.rec-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.rec-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;white-space:nowrap;text-align:right}
+.pendente-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.pendente-item.editing{border-color:var(--green)}
 /* ── CATEGORIAS ─────────────────────────────── */
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
 .cat-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative}
