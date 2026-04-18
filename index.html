@@ -293,6 +293,25 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .metric-sm-label{font-size:10px;color:var(--text3);margin-bottom:3px}
 .metric-sm-val{font-size:14px;font-weight:600;font-family:'DM Mono',monospace}
 
+
+/* ── CATEGORIAS ─────────────────────────────── */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.cat-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative}
+.cat-item-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cat-item-icon svg{width:16px;height:16px}
+.cat-item-info{flex:1;min-width:0}
+.cat-item-nome{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-item-tipo{font-size:10px;color:var(--text3)}
+.cat-item-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.cat-item:hover .cat-item-actions{opacity:1}
+.cor-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cor-btn{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.cor-btn.sel{border-color:#fff;transform:scale(1.15)}
+.icone-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+.icone-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.icone-btn:hover{border-color:var(--border2);background:var(--bg4)}
+.icone-btn.sel{border-color:var(--green);background:var(--green-bg)}
+.icone-btn svg{width:16px;height:16px}
 /* ── ONBOARDING ─────────────────────────────── */
 .onboarding{display:none;position:fixed;inset:0;background:var(--bg);z-index:2000;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .onboarding.show{display:flex}
@@ -443,6 +462,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <button class="nav-item" onclick="setSection('cartoes')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
     Cartões
+  </button>
+  <button class="nav-item" onclick="setSection('categorias')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h8M4 18h4"/><circle cx="18" cy="15" r="3"/><path d="m21 18-1.5-1.5"/></svg>
+    Categorias
   </button>
   <button class="nav-item" onclick="setSection('ia')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -658,6 +681,36 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <button class="topbar-btn" onclick="abrirModalCartao()">+ Cartão</button>
   </div>
   <div id="cartoes-lista"></div>
+</div>
+
+<!-- CATEGORIAS -->
+<div class="section" id="sec-categorias">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Categorias</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModalCategoria()" style="padding:6px 10px;font-size:11px">+</button>
+      <div onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer" id="user-avatar-mob-categorias">?</div>
+    </div>
+  </div>
+  <div class="page-header">
+    <div><div class="page-title">Categorias</div><div class="page-sub">Personalize suas categorias</div></div>
+    <button class="topbar-btn" onclick="abrirModalCategoria()">+ Categoria</button>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-title">
+      Minhas categorias
+      <div style="display:flex;gap:6px">
+        <button class="tx-filter-btn active" id="cat-filtro-todas" onclick="setCatFiltro('todas',this)">Todas</button>
+        <button class="tx-filter-btn" id="cat-filtro-despesa" onclick="setCatFiltro('despesa',this)">Despesas</button>
+        <button class="tx-filter-btn" id="cat-filtro-receita" onclick="setCatFiltro('receita',this)">Receitas</button>
+      </div>
+    </div>
+    <div id="categorias-lista"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Categorias padrão <span style="font-size:10px;color:var(--text3)">(sempre disponíveis)</span></div>
+    <div id="categorias-padrao"></div>
+  </div>
 </div>
 
 <!-- IA -->
@@ -975,6 +1028,43 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
+<!-- Modal Categoria -->
+<div class="modal-overlay" id="modal-categoria">
+  <div class="modal">
+    <div class="modal-title" id="cat-modal-title">Nova categoria</div>
+    <input type="hidden" id="cat-edit-id">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="cat-nome" placeholder="Ex: Pet, Farmácia, Salário extra...">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Tipo</label>
+        <div class="tipo-toggle" style="margin-bottom:0">
+          <button class="tipo-btn active-des" id="cat-tipo-des" onclick="setCatTipo('despesa')">Despesa</button>
+          <button class="tipo-btn" id="cat-tipo-rec" onclick="setCatTipo('receita')">Receita</button>
+          <button class="tipo-btn" id="cat-tipo-amb" onclick="setCatTipo('ambos')">Ambos</button>
+        </div>
+      </div>
+      <input type="hidden" id="cat-tipo-val" value="despesa">
+      <div class="form-group full">
+        <label class="form-label">Ícone</label>
+        <div class="icone-grid" id="cat-icone-grid"></div>
+        <input type="hidden" id="cat-icone-val" value="outros">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Cor</label>
+        <div class="cor-picker" id="cat-cor-picker"></div>
+        <input type="hidden" id="cat-cor-val" value="#5b9cf6">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalCategoria()">Cancelar</button>
+      <button class="btn primary" onclick="salvarCategoria()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- Banner instalar PWA -->
@@ -1064,6 +1154,7 @@ async function carregarTudo(){
     if(ra.error)throw new Error(ra.error.message||'Erro na tabela alertas');
     txs=rt.data||[];metas=rm.data||[];investimentos=ri.data||[];alertas=ra.data||[];
     await carregarCartoes();
+    await carregarCategorias();
     document.getElementById('db-dot').className='db-dot ok';
     document.getElementById('db-label').textContent='Conectado';
     document.getElementById('db-label').style.color='var(--green)';
@@ -1090,7 +1181,7 @@ function setSection(sec){
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
-  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,ia:6};
+  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,categorias:6,ia:7};
   document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
   // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
   const mIdx={dashboard:0,transacoes:1,metas:2,alertas:3,ia:4};
@@ -1712,7 +1803,10 @@ function setTipo(tipo){
   atualizaCats();
   onChangePag();
 }
-function atualizaCats(){document.getElementById('f-cat').innerHTML=(tipoForm==='receita'?CATS_R:CATS_D).map(c=>`<option>${c}</option>`).join('');}
+function atualizaCats(){
+  const cats = getCatsParaTipo(tipoForm);
+  document.getElementById('f-cat').innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+}
 function onChangePag(){
   const pag=document.getElementById('f-pag').value;
   const isCredito=pag==='credito'&&tipoForm==='despesa';
@@ -1835,6 +1929,7 @@ document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.ta
 document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditTx();});
 document.getElementById('modal-senha').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('modal-cartao').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCartao();});
+document.getElementById('modal-categoria').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCategoria();});
 document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
 document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
 
@@ -2124,6 +2219,231 @@ function exportarRelatorio(){
 
 
 
+
+// ── CATEGORIAS ────────────────────────────────────────────────
+let categorias = [];
+let catFiltroAtual = 'todas';
+let catTipoAtual = 'despesa';
+let catIconeAtual = 'outros';
+let catCorAtual = '#5b9cf6';
+
+const CATS_PADRAO_D = ['Alimentação','Moradia','Transporte','Saúde','Educação','Lazer','Vestuário','Assinaturas','Outros'];
+const CATS_PADRAO_R = ['Salário','Freelance','Investimentos','Outros'];
+const CORES_DISPONIVEIS = ['#5b9cf6','#2dd4a0','#f96b6b','#a78bfa','#f5a623','#fb923c','#34d399','#f472b6','#94a3b8','#e879f9','#38bdf8','#fbbf24'];
+
+const ICONES = {
+  alimentacao: '<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>',
+  moradia: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  transporte: '<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+  saude: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  educacao: '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  lazer: '<circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>',
+  vestuario: '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
+  assinaturas: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  investimentos: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  salario: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  freelance: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  pet: '<path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.656 1 1.261-.472 1.96-1.45 2.344-2.5M14.267 5.172c0-1.39 1.577-2.493 3.5-2.172 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.96-1.45-2.344-2.5"/><path d="M8 14v.5A3.5 3.5 0 0 0 11.5 18v0h1v0A3.5 3.5 0 0 0 16 14.5V14"/><path d="M11.5 18H10s-1 1-3 1M12.5 18H14s1 1 3 1"/>',
+  outros: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+};
+
+function getCatIconeSVG(icone){
+  return `<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16">${ICONES[icone]||ICONES.outros}</svg>`;
+}
+
+async function carregarCategorias(){
+  if(!currentUser) return;
+  const {data,error} = await sb.from('categorias').select('*').order('nome');
+  if(!error) categorias = data||[];
+  renderCategorias();
+  atualizaSelectCategorias();
+}
+
+function getCatsParaTipo(tipo){
+  // Categorias personalizadas do usuário
+  const custom = categorias.filter(c => c.tipo === tipo || c.tipo === 'ambos');
+  // Se não tem nenhuma, usa as padrão
+  if(custom.length === 0){
+    return tipo === 'receita' ? CATS_PADRAO_R : CATS_PADRAO_D;
+  }
+  return custom.map(c => c.nome);
+}
+
+function atualizaSelectCategorias(){
+  // Atualizar selects de categoria nos modais de transação
+  ['f-cat','edit-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const tipo = id === 'f-cat' ? tipoForm : (document.getElementById('edit-tx-id') ? txs.find(t=>t.id===parseInt(document.getElementById('edit-tx-id').value))?.tipo||'despesa' : 'despesa');
+    const cats = getCatsParaTipo(tipo);
+    const cur = el.value;
+    el.innerHTML = (Array.isArray(cats) ? cats : []).map(c => `<option${c===cur?' selected':''}>${c}</option>`).join('');
+  });
+}
+
+function setCatFiltro(filtro, btn){
+  catFiltroAtual = filtro;
+  document.querySelectorAll('#cat-filtro-todas,#cat-filtro-despesa,#cat-filtro-receita').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCategorias();
+}
+
+function renderCategorias(){
+  const el = document.getElementById('categorias-lista');
+  if(!el) return;
+
+  const filtered = catFiltroAtual === 'todas' ? categorias :
+    categorias.filter(c => c.tipo === catFiltroAtual || c.tipo === 'ambos');
+
+  if(!filtered.length){
+    el.innerHTML = `<div class="empty-state" style="padding:28px 12px">
+      <div class="empty-icon">${getCatIconeSVG('outros')}</div>
+      <div class="empty-title" style="font-size:13px">Nenhuma categoria personalizada</div>
+      <div class="empty-sub" style="font-size:12px">Crie categorias personalizadas para organizar melhor suas finanças.</div>
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="cat-grid">${filtered.map(ct=>`
+      <div class="cat-item">
+        <div class="cat-item-icon" style="background:${ct.cor}22">
+          <svg fill="none" stroke="${ct.cor}" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16">${ICONES[ct.icone]||ICONES.outros}</svg>
+        </div>
+        <div class="cat-item-info">
+          <div class="cat-item-nome">${ct.nome}</div>
+          <div class="cat-item-tipo">${ct.tipo==='ambos'?'despesa/receita':ct.tipo}</div>
+        </div>
+        <div class="cat-item-actions">
+          <button class="tx-del" onclick="editarCategoria(${ct.id})" style="font-size:12px">✎</button>
+          <button class="tx-del" onclick="deletarCategoria(${ct.id})">✕</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  // Categorias padrão
+  const padEl = document.getElementById('categorias-padrao');
+  if(padEl){
+    const todas = [...CATS_PADRAO_D, ...CATS_PADRAO_R.filter(r=>!CATS_PADRAO_D.includes(r))];
+    padEl.innerHTML = `<div class="cat-grid">${todas.map(nome=>`
+      <div class="cat-item" style="opacity:.6">
+        <div class="cat-item-icon" style="background:var(--bg4)">
+          ${getCatIconeSVG('outros')}
+        </div>
+        <div class="cat-item-info">
+          <div class="cat-item-nome">${nome}</div>
+          <div class="cat-item-tipo">padrão</div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+}
+
+function setCatTipo(tipo){
+  catTipoAtual = tipo;
+  document.getElementById('cat-tipo-val').value = tipo;
+  ['des','rec','amb'].forEach(t=>{
+    const btn = document.getElementById('cat-tipo-'+t);
+    if(!btn) return;
+    const map = {des:'despesa',rec:'receita',amb:'ambos'};
+    const isActive = map[t] === tipo;
+    btn.className = 'tipo-btn' + (isActive ? (tipo==='despesa'?' active-des':tipo==='receita'?' active-rec':' active-des') : '');
+  });
+}
+
+function renderIconeGrid(){
+  const grid = document.getElementById('cat-icone-grid');
+  if(!grid) return;
+  grid.innerHTML = Object.keys(ICONES).map(key=>`
+    <button type="button" class="icone-btn${key===catIconeAtual?' sel':''}" onclick="selecionarIcone(this,'${key}')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16">${ICONES[key]}</svg>
+    </button>`).join('');
+}
+
+function renderCorPicker(){
+  const picker = document.getElementById('cat-cor-picker');
+  if(!picker) return;
+  picker.innerHTML = CORES_DISPONIVEIS.map(cor=>`
+    <button type="button" class="cor-btn${cor===catCorAtual?' sel':''}" style="background:${cor}" onclick="selecionarCorCat(this,'${cor}')"></button>`
+  ).join('');
+}
+
+function selecionarIcone(btn, icone){
+  catIconeAtual = icone;
+  document.getElementById('cat-icone-val').value = icone;
+  document.querySelectorAll('.icone-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function selecionarCorCat(btn, cor){
+  catCorAtual = cor;
+  document.getElementById('cat-cor-val').value = cor;
+  document.querySelectorAll('.cor-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function abrirModalCategoria(){
+  document.getElementById('cat-modal-title').textContent = 'Nova categoria';
+  document.getElementById('cat-edit-id').value = '';
+  document.getElementById('cat-nome').value = '';
+  catTipoAtual = 'despesa'; catIconeAtual = 'outros'; catCorAtual = '#5b9cf6';
+  document.getElementById('cat-tipo-val').value = 'despesa';
+  document.getElementById('cat-cor-val').value = '#5b9cf6';
+  document.getElementById('cat-icone-val').value = 'outros';
+  setCatTipo('despesa');
+  renderIconeGrid();
+  renderCorPicker();
+  document.getElementById('modal-categoria').classList.add('open');
+}
+
+function fecharModalCategoria(){ document.getElementById('modal-categoria').classList.remove('open'); }
+
+function editarCategoria(id){
+  const ct = categorias.find(c=>c.id===id);
+  if(!ct) return;
+  document.getElementById('cat-modal-title').textContent = 'Editar categoria';
+  document.getElementById('cat-edit-id').value = id;
+  document.getElementById('cat-nome').value = ct.nome;
+  catTipoAtual = ct.tipo; catIconeAtual = ct.icone; catCorAtual = ct.cor;
+  document.getElementById('cat-tipo-val').value = ct.tipo;
+  document.getElementById('cat-cor-val').value = ct.cor;
+  document.getElementById('cat-icone-val').value = ct.icone;
+  setCatTipo(ct.tipo);
+  renderIconeGrid();
+  renderCorPicker();
+  document.getElementById('modal-categoria').classList.add('open');
+}
+
+async function salvarCategoria(){
+  const nome = document.getElementById('cat-nome').value.trim();
+  const tipo = document.getElementById('cat-tipo-val').value;
+  const cor = document.getElementById('cat-cor-val').value || '#5b9cf6';
+  const icone = document.getElementById('cat-icone-val').value || 'outros';
+  const editId = document.getElementById('cat-edit-id').value;
+  if(!nome){ toast('Digite um nome para a categoria','err'); return; }
+  const payload = {nome, tipo, cor, icone, user_id: currentUser?.id};
+  let error;
+  if(editId){
+    ({error} = await sb.from('categorias').update(payload).eq('id',parseInt(editId)));
+    if(!error) categorias = categorias.map(c=>c.id===parseInt(editId)?{...c,...payload}:c);
+  } else {
+    const {data:nova, error:err} = await sb.from('categorias').insert(payload).select().single();
+    error = err;
+    if(!error) categorias.push(nova);
+  }
+  if(error){ toast('Erro ao salvar categoria','err'); return; }
+  fecharModalCategoria();
+  toast(editId?'Categoria atualizada!':'Categoria criada!');
+  renderCategorias();
+  atualizaSelectCategorias();
+}
+
+async function deletarCategoria(id){
+  if(!confirm('Remover esta categoria?')) return;
+  const {error} = await sb.from('categorias').delete().eq('id',id);
+  if(error){ toast('Erro ao remover','err'); return; }
+  categorias = categorias.filter(c=>c.id!==id);
+  toast('Categoria removida');
+  renderCategorias();
+  atualizaSelectCategorias();
+}
+
 // ── CARTÕES ───────────────────────────────────────────────────
 let cartoes = [];
 let cartaoCorSelecionada = '#5b9cf6';
@@ -2342,6 +2662,25 @@ function exportarPDF(){
     .page{padding:24px 32px}
   }
 
+
+/* ── CATEGORIAS ─────────────────────────────── */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.cat-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative}
+.cat-item-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cat-item-icon svg{width:16px;height:16px}
+.cat-item-info{flex:1;min-width:0}
+.cat-item-nome{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-item-tipo{font-size:10px;color:var(--text3)}
+.cat-item-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.cat-item:hover .cat-item-actions{opacity:1}
+.cor-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cor-btn{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.cor-btn.sel{border-color:#fff;transform:scale(1.15)}
+.icone-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+.icone-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.icone-btn:hover{border-color:var(--border2);background:var(--bg4)}
+.icone-btn.sel{border-color:var(--green);background:var(--green-bg)}
+.icone-btn svg{width:16px;height:16px}
 /* ── ONBOARDING ─────────────────────────────── */
 .onboarding{display:none;position:fixed;inset:0;background:var(--bg);z-index:2000;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .onboarding.show{display:flex}
@@ -2565,7 +2904,7 @@ const OB_STEPS = [
   {
     icon: '<circle cx="12" cy="12" r="10" stroke="#0a1a14" stroke-width="2.5"/><circle cx="12" cy="12" r="6" stroke="#0a1a14" stroke-width="2.5"/><circle cx="12" cy="12" r="2" fill="#0a1a14"/>',
     title: 'Defina suas <span class="ob-highlight">metas</span>',
-    sub: 'Crie objetivos financeiros e acompanhe seu progresso. Reserve de emergência, viagem, o que quiser.',
+    sub: 'Crie objetivos financeiros e acompanhe seu progresso. reserva de emergência, viagem, o que quiser.',
     btn: 'Próximo',
   },
   {
