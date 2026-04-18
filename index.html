@@ -2678,10 +2678,12 @@ function abrirModalCartao(){
   document.getElementById('cartao-bandeira').value = 'visa';
   document.getElementById('cartao-banco').value = '';
   document.getElementById('cartao-ultimos4').value = '';
+  document.getElementById('cartao-limite').value = '';
   cartaoCorSelecionada = '#5b9cf6';
   document.getElementById('cartao-cor').value = '#5b9cf6';
   document.querySelectorAll('#cartao-cores button').forEach((b,i)=>b.style.border=i===0?'2px solid #fff':'2px solid transparent');
   document.getElementById('modal-cartao').classList.add('open');
+  setTimeout(aplicaMascaras,50);
 }
 
 function fecharModalCartao(){ document.getElementById('modal-cartao').classList.remove('open'); }
@@ -2695,12 +2697,14 @@ function editarCartao(id){
   document.getElementById('cartao-bandeira').value = ct.bandeira;
   document.getElementById('cartao-banco').value = ct.banco||'';
   document.getElementById('cartao-ultimos4').value = ct.ultimos4||'';
+  document.getElementById('cartao-limite').value = ct.limite?Number(ct.limite).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
   cartaoCorSelecionada = ct.cor||'#5b9cf6';
   document.getElementById('cartao-cor').value = cartaoCorSelecionada;
   document.querySelectorAll('#cartao-cores button').forEach(b=>{
-    b.style.border = b.style.background===cartaoCorSelecionada.replace('#','rgb').toLowerCase()||b.getAttribute('onclick')?.includes(cartaoCorSelecionada) ? '2px solid #fff' : '2px solid transparent';
+    b.style.border = b.getAttribute('onclick')?.includes(cartaoCorSelecionada) ? '2px solid #fff' : '2px solid transparent';
   });
   document.getElementById('modal-cartao').classList.add('open');
+  setTimeout(aplicaMascaras,50);
 }
 
 async function salvarCartao(){
