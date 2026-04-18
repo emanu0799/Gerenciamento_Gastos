@@ -1,7 +1,7 @@
 {
-  "name": "Finanças Pessoais",
-  "short_name": "Finanças",
-  "description": "Gerencie suas finanças pessoais com inteligência",
+  "name": "Simplo",
+  "short_name": "Simplo",
+  "description": "Finanças simples, vida organizada.",
   "start_url": "/Gerenciamento_Gastos/",
   "scope": "/Gerenciamento_Gastos/",
   "display": "standalone",
@@ -22,7 +22,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["finance", "productivity"],
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "lang": "pt-BR",
   "dir": "ltr"
 }

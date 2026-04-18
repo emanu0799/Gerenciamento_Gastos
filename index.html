@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Finanças Pessoais</title>
-<meta name="description" content="Gerencie suas finanças pessoais com inteligência">
+<title>Simplo — finanças simples</title>
+<meta name="description" content="Finanças simples, vida organizada.">
 <meta name="theme-color" content="#2dd4a0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Finanças">
+<meta name="apple-mobile-web-app-title" content="Simplo">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -254,7 +254,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   .modal{width:100% !important;max-width:100% !important;border-radius:var(--radius) var(--radius) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh;overflow-y:auto}
   .modal-overlay{align-items:flex-end}
   /* Perfil dropdown */
-  #perfil-menu{left:8px;right:8px;top:auto;bottom:70px}
+  #perfil-menu{left:8px;right:8px;top:58px !important;bottom:auto !important}
   /* Dois col forms */
   .form-grid{grid-template-columns:1fr !important}
   .form-grid .full{grid-column:1}
@@ -293,6 +293,27 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .metric-sm-label{font-size:10px;color:var(--text3);margin-bottom:3px}
 .metric-sm-val{font-size:14px;font-weight:600;font-family:'DM Mono',monospace}
 
+/* ── ONBOARDING ─────────────────────────────── */
+.onboarding{display:none;position:fixed;inset:0;background:var(--bg);z-index:2000;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.onboarding.show{display:flex}
+.ob-steps{display:flex;gap:6px;margin-bottom:32px}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:var(--bg4);transition:all .3s}
+.ob-dot.active{width:20px;border-radius:3px;background:var(--green)}
+.ob-card{width:100%;max-width:380px;text-align:center}
+.ob-icon{width:72px;height:72px;border-radius:20px;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.ob-icon svg{width:36px;height:36px}
+.ob-title{font-size:24px;font-weight:600;margin-bottom:10px;letter-spacing:-.5px}
+.ob-sub{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:32px}
+.ob-btn{width:100%;padding:14px;border-radius:var(--radius);border:none;background:var(--green);color:#0a1a14;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s;margin-bottom:10px}
+.ob-btn:hover{opacity:.88}
+.ob-skip{background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:8px}
+.ob-highlight{color:var(--green)}
+/* ── EMPTY STATES ───────────────────────────── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+.empty-icon{width:56px;height:56px;border-radius:16px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:24px;height:24px;color:var(--text3)}
+.empty-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text3);line-height:1.6;max-width:260px;margin:0 auto 20px}
 /* ── LOGIN ─────────────────────────────────── */
 .login-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;align-items:center;justify-content:center;flex-direction:column}
 .login-screen.show{display:flex}
@@ -325,9 +346,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-logo-icon"><svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-      <span>Finanças Pessoais</span>
+      <div class="login-logo-icon"><svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h13M4 18h7" stroke-linecap="round"/></svg></div>
+      <span>simplo</span>
     </div>
+    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:-20px;margin-bottom:20px">finanças simples, vida organizada</p>
     <div class="login-tabs">
       <button class="login-tab active" id="tab-login" onclick="setLoginTab('login')">Entrar</button>
       <button class="login-tab" id="tab-signup" onclick="setLoginTab('signup')">Criar conta</button>
@@ -359,17 +381,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
+<!-- Onboarding -->
+<div class="onboarding" id="onboarding">
+  <div class="ob-steps" id="ob-steps"></div>
+  <div class="ob-card" id="ob-card"></div>
+</div>
+
 <div class="loading-overlay" id="loading"><div class="spinner"></div><span>Carregando dados...</span></div>
 
 <div class="app">
 <aside class="sidebar">
   <div class="logo" style="position:relative">
-    <div class="logo-icon"><svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-    Finanças
-    <div id="user-avatar" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all .15s">?</div>
+    <div class="logo-icon"><svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h13M4 18h7" stroke-linecap="round"/></svg></div>
+    simplo
+    <div id="user-avatar" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation">?</div>
   </div>
   <!-- Dropdown perfil -->
-  <div id="perfil-menu" style="display:none;position:absolute;top:64px;left:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+  <div id="perfil-menu" style="display:none;position:fixed;top:64px;left:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;z-index:9999;-webkit-overflow-scrolling:touch">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
       <div style="width:36px;height:36px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--green)" id="perfil-avatar-big">?</div>
       <div style="min-width:0">
@@ -453,7 +481,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div id="alertas-banner" style="display:none;background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red)"></div>
@@ -539,7 +567,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div style="font-size:15px;font-weight:600">Transações</div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob-sec-transacoes" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob-sec-transacoes" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -573,7 +601,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div style="font-size:15px;font-weight:600">Investimentos</div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModalInv()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob-sec-investimentos" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob-sec-investimentos" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -590,7 +618,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div style="font-size:15px;font-weight:600">Metas</div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModalMeta()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob-sec-metas" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob-sec-metas" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -606,7 +634,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div style="font-size:15px;font-weight:600">Alertas</div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModalAlerta()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob-sec-alertas" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob-sec-alertas" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -638,7 +666,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div style="font-size:15px;font-weight:600">Análise IA</div>
     <div style="display:flex;align-items:center;gap:6px">
       
-      <div id="user-avatar-mob-sec-ia" onclick="togglePerfilMenu()" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
+      <div id="user-avatar-mob-sec-ia" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -955,7 +983,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <svg width="18" height="18" fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
   </div>
   <div style="flex:1;min-width:0">
-    <div style="font-size:13px;font-weight:500">Instalar o app</div>
+    <div style="font-size:13px;font-weight:500">Instalar o Simplo</div>
     <div style="font-size:11px;color:var(--text3)">Adicione à tela inicial para acesso rápido</div>
   </div>
   <button onclick="instalarPWA()" style="background:var(--green);border:none;color:#0a1a14;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">Instalar</button>
@@ -1183,7 +1211,11 @@ function renderDash(){
   // Categorias
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
   const cl=document.getElementById('cat-list');
-  if(!cats.length){cl.innerHTML='<div class="empty">Sem despesas neste mês</div>';}
+  if(!cats.length){cl.innerHTML=`<div class="empty-state" style="padding:24px 12px">
+  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+  <div class="empty-title" style="font-size:13px">Sem despesas este mês</div>
+  <div class="empty-sub" style="font-size:12px">Que ótimo! Adicione transações para ver a análise por categoria.</div>
+</div>`;}
   else{
     cl.innerHTML=cats.map(([ct,v])=>{
       const al=alertas.find(a=>a.categoria===ct);
@@ -1409,7 +1441,12 @@ function renderTxs(){
   });
   list.sort((a,b)=>new Date(b.data)-new Date(a.data));
   const el=document.getElementById('tx-list');
-  if(!list.length){el.innerHTML='<div class="empty">Nenhuma transação</div>';return;}
+  if(!list.length){el.innerHTML=`<div class="empty-state">
+  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+  <div class="empty-title">Nenhuma transação ainda</div>
+  <div class="empty-sub">Adicione sua primeira receita ou despesa para começar a controlar suas finanças.</div>
+  <button class="ob-btn" style="max-width:200px;padding:11px" onclick="abrirModal()">+ Adicionar agora</button>
+</div>`;return;}
   const pagLabel={pix:'PIX',debito:'Débito',credito:'Crédito'};
   const cartaoLabel={visa_bradesco:'Visa Bradesco',master_nubank:'Master Nubank'};
   const cartaoClass={visa_bradesco:'visa',master_nubank:'master'};
@@ -1470,7 +1507,12 @@ function renderInv(){
     <div class="card"><div class="card-label">Rentabilidade total</div><div class="card-value ${rentTotal>=0?'green':'red'}">${fmtPct(rentTotal)}</div><div class="card-sub">${fmt(totalSaldo-totalAportado)}</div></div>
   `;
   const el=document.getElementById('inv-list');
-  if(!investimentos.length){el.innerHTML='<div class="empty">Nenhum investimento cadastrado</div>';return;}
+  if(!investimentos.length){el.innerHTML=`<div class="empty-state">
+  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+  <div class="empty-title">Nenhum investimento registrado</div>
+  <div class="empty-sub">Registre seu CDB, Tesouro Direto ou qualquer investimento. O Simplo calcula a rentabilidade automaticamente.</div>
+  <button class="ob-btn" style="max-width:200px;padding:11px" onclick="abrirModalInv()">+ Adicionar investimento</button>
+</div>`;return;}
   el.innerHTML=investimentos.map(inv=>{
     const rent=Number(inv.rentabilidade_percent)||0;
     const lucro=Number(inv.saldo_atual)-Number(inv.valor_aportado);
@@ -2103,7 +2145,12 @@ function renderCartoes(){
   const el = document.getElementById('cartoes-lista');
   if(!el) return;
   if(!cartoes.length){
-    el.innerHTML = '<div class="empty" style="padding:40px">Nenhum cartão cadastrado. Adicione seu primeiro cartão!</div>';
+    el.innerHTML = `<div class="empty-state">
+  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+  <div class="empty-title">Nenhum cartão cadastrado</div>
+  <div class="empty-sub">Adicione seus cartões de crédito e débito. O Simplo separa as faturas e parcelas automaticamente.</div>
+  <button class="ob-btn" style="max-width:220px;padding:11px" onclick="abrirModalCartao()">+ Adicionar cartão</button>
+</div>`;
     return;
   }
   el.innerHTML = cartoes.map(ct => `
@@ -2295,6 +2342,27 @@ function exportarPDF(){
     .page{padding:24px 32px}
   }
 
+/* ── ONBOARDING ─────────────────────────────── */
+.onboarding{display:none;position:fixed;inset:0;background:var(--bg);z-index:2000;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.onboarding.show{display:flex}
+.ob-steps{display:flex;gap:6px;margin-bottom:32px}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:var(--bg4);transition:all .3s}
+.ob-dot.active{width:20px;border-radius:3px;background:var(--green)}
+.ob-card{width:100%;max-width:380px;text-align:center}
+.ob-icon{width:72px;height:72px;border-radius:20px;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.ob-icon svg{width:36px;height:36px}
+.ob-title{font-size:24px;font-weight:600;margin-bottom:10px;letter-spacing:-.5px}
+.ob-sub{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:32px}
+.ob-btn{width:100%;padding:14px;border-radius:var(--radius);border:none;background:var(--green);color:#0a1a14;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s;margin-bottom:10px}
+.ob-btn:hover{opacity:.88}
+.ob-skip{background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:8px}
+.ob-highlight{color:var(--green)}
+/* ── EMPTY STATES ───────────────────────────── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+.empty-icon{width:56px;height:56px;border-radius:16px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:24px;height:24px;color:var(--text3)}
+.empty-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text3);line-height:1.6;max-width:260px;margin:0 auto 20px}
 /* ── LOGIN ─────────────────────────────────── */
 .login-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;align-items:center;justify-content:center;flex-direction:column}
 .login-screen.show{display:flex}
@@ -2479,6 +2547,86 @@ function exportarPDF(){
 }
 
 
+
+// ── ONBOARDING ────────────────────────────────────────────────
+const OB_STEPS = [
+  {
+    icon: '<path d="M4 6h16M4 10h10M4 14h13M4 18h7" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round"/>',
+    title: 'Bem-vindo ao <span class="ob-highlight">simplo</span>',
+    sub: 'Controle seus gastos, metas e investimentos de forma simples e visual. Sem planilha, sem complicação.',
+    btn: 'Começar',
+  },
+  {
+    icon: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round"/>',
+    title: 'Registre seus <span class="ob-highlight">gastos</span>',
+    sub: 'Adicione transações em segundos. O Simplo organiza tudo por categoria e mostra onde seu dinheiro está indo.',
+    btn: 'Próximo',
+  },
+  {
+    icon: '<circle cx="12" cy="12" r="10" stroke="#0a1a14" stroke-width="2.5"/><circle cx="12" cy="12" r="6" stroke="#0a1a14" stroke-width="2.5"/><circle cx="12" cy="12" r="2" fill="#0a1a14"/>',
+    title: 'Defina suas <span class="ob-highlight">metas</span>',
+    sub: 'Crie objetivos financeiros e acompanhe seu progresso. Reserve de emergência, viagem, o que quiser.',
+    btn: 'Próximo',
+  },
+  {
+    icon: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 7 22 7 22 13" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round"/>',
+    title: 'Acompanhe seus <span class="ob-highlight">investimentos</span>',
+    sub: 'Registre seus investimentos com rentabilidade automática via CDI do Banco Central. Seu patrimônio sempre atualizado.',
+    btn: 'Próximo',
+  },
+  {
+    icon: '<rect x="2" y="5" width="20" height="14" rx="2" stroke="#0a1a14" stroke-width="2.5"/><line x1="2" y1="10" x2="22" y2="10" stroke="#0a1a14" stroke-width="2.5"/>',
+    title: 'Cadastre seus <span class="ob-highlight">cartões</span>',
+    sub: 'Adicione seus cartões com os últimos 4 dígitos. O Simplo separa as faturas automaticamente para você.',
+    btn: 'Vamos lá!',
+  },
+];
+
+let obStep = 0;
+
+function renderOnboarding(){
+  const stepsEl = document.getElementById('ob-steps');
+  const cardEl = document.getElementById('ob-card');
+  const step = OB_STEPS[obStep];
+
+  stepsEl.innerHTML = OB_STEPS.map((_,i) =>
+    `<div class="ob-dot ${i===obStep?'active':''}"></div>`
+  ).join('');
+
+  cardEl.innerHTML = `
+    <div class="ob-icon">
+      <svg fill="none" viewBox="0 0 24 24" width="36" height="36">${step.icon}</svg>
+    </div>
+    <h1 class="ob-title">${step.title}</h1>
+    <p class="ob-sub">${step.sub}</p>
+    <button class="ob-btn" onclick="nextObStep()">${step.btn}</button>
+    ${obStep < OB_STEPS.length-1 ? '<button class="ob-skip" onclick="finishOnboarding()">Pular introdução</button>' : ''}
+  `;
+}
+
+function nextObStep(){
+  if(obStep < OB_STEPS.length - 1){
+    obStep++;
+    renderOnboarding();
+  } else {
+    finishOnboarding();
+  }
+}
+
+function finishOnboarding(){
+  localStorage.setItem('simplo_onboarded', '1');
+  document.getElementById('onboarding').classList.remove('show');
+}
+
+function checkOnboarding(){
+  const done = localStorage.getItem('simplo_onboarded');
+  if(!done){
+    obStep = 0;
+    renderOnboarding();
+    document.getElementById('onboarding').classList.add('show');
+  }
+}
+
 // ── AUTH ──────────────────────────────────────────────────────
 function toggleSenha(){
   const input=document.getElementById('login-senha');
@@ -2492,16 +2640,21 @@ function toggleSenha(){
   }
 }
 
-function togglePerfilMenu(){
+function togglePerfilMenu(e){
+  if(e){e.stopPropagation();e.preventDefault();}
   const m=document.getElementById('perfil-menu');
-  m.style.display=m.style.display==='none'?'block':'none';
+  const isOpen=m.style.display==='block';
+  m.style.display=isOpen?'none':'block';
 }
 // Fechar menu ao clicar fora
 document.addEventListener('click',e=>{
   const menu=document.getElementById('perfil-menu');
-  const avatar=document.getElementById('user-avatar');
-  if(menu&&avatar&&!menu.contains(e.target)&&!avatar.contains(e.target)){
-    menu.style.display='none';
+  if(menu&&menu.style.display==='block'){
+    const avatar=document.getElementById('user-avatar');
+    const avatarMob=document.getElementById('user-avatar-mob');
+    const clickedInsideMenu=menu.contains(e.target);
+    const clickedAvatar=(avatar&&avatar.contains(e.target))||(avatarMob&&avatarMob.contains(e.target));
+    if(!clickedInsideMenu&&!clickedAvatar) menu.style.display='none';
   }
 });
 
@@ -2607,6 +2760,7 @@ function onLogin(user){
   // Sincronizar avatares nos headers mobile
   document.querySelectorAll('[id^="user-avatar-mob"]').forEach(el=>el.textContent=inicial);
   carregarTudo();
+  checkOnboarding();
 }
 
 async function logout(){
