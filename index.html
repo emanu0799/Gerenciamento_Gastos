@@ -1449,24 +1449,17 @@ function renderFluxo(tm,totalDias){
   }).join('');
 
   document.getElementById('flow-chart').innerHTML=`
-    <div style="width:100%">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;flex-wrap:wrap;gap:6px">
-        <span style="color:var(--text3)">Saldo dia a dia — cada barra = resultado do dia</span>
-        <span style="color:${saldoFinal>=0?'var(--green)':'var(--red)'};font-weight:500">Resultado: ${saldoFinal>=0?'+':''}${fmt(saldoFinal)}</span>
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;flex-wrap:wrap;gap:4px;align-items:center">
+      <div style="display:flex;gap:10px">
+        <span style="display:flex;align-items:center;gap:4px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block"></span>Positivo</span>
+        <span style="display:flex;align-items:center;gap:4px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:2px;background:var(--red);display:inline-block"></span>Negativo</span>
+        ${isMesAtual?`<span style="display:flex;align-items:center;gap:4px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:2px;background:var(--bg4);display:inline-block"></span>Futuro</span>`:''}
       </div>
-      <div style="display:flex;gap:1px;align-items:flex-end;height:80px">${chartHTML}</div>
-      <div style="display:flex;gap:3px;margin-top:4px;height:3px">
-        ${dias.map(d=>{
-          const v=saldoDia[d]||{rec:0,des:0};
-          const s=v.rec-v.des;
-          return`<div style="flex:1;background:${s>0?'var(--green)':s<0?'var(--red)':'var(--bg4)'};border-radius:1px;opacity:0.5"></div>`;
-        }).join('')}
-      </div>
-      <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text3)">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block"></span>Dia positivo</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--red);display:inline-block"></span>Dia negativo</span>
-        ${isMesAtual?`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--bg4);display:inline-block"></span>Futuro</span>`:''}
-      </div>
+      <span style="color:${saldoFinal>=0?'var(--green)':'var(--red)'};font-weight:500;font-size:12px">Resultado: ${saldoFinal>=0?'+':''}${fmt(saldoFinal)}</span>
+    </div>
+    <div style="display:flex;gap:1px;align-items:flex-end;height:72px">${chartHTML}</div>
+    <div style="display:flex;gap:3px;margin-top:3px;height:3px">
+      ${dias.map(d=>{const v=saldoDia[d]||{rec:0,des:0};const s=v.rec-v.des;return`<div style="flex:1;background:${s>0?'var(--green)':s<0?'var(--red)':'var(--bg4)'};border-radius:1px;opacity:0.4"></div>`;}).join('')}
     </div>`;
 }
 
