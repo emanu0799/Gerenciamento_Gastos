@@ -142,6 +142,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .form-label{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px}
 .form-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;width:100%}
 .form-input:focus{border-color:var(--border2)}
+textarea.form-input{height:auto}
+select.form-input{height:42px}
 .form-input option{background:var(--bg2)}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .btn{padding:8px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;transition:all .15s}
@@ -600,6 +602,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
+      <div onclick="setSection('perfil')" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer;-webkit-tap-highlight-color:transparent" id="user-avatar-mob-tx">?</div>
     </div>
   </div>
   <div class="page-header">
@@ -615,7 +618,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="tx-filters">
     <button class="tx-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
-    <button class="tx-filter-btn" onclick="setFiltro('receita',this)">Receitas</button>
+    <button class="tx-filter-btn" onclick="setFiltro('receita',this)">Entradas</button>
     <button class="tx-filter-btn" onclick="setFiltro('despesa',this)">Despesas</button>
     <select class="form-input" id="filtro-cat" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px"></select>
     <select class="form-input" id="filtro-pag" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
@@ -718,7 +721,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div style="display:flex;gap:6px">
         <button class="tx-filter-btn active" id="cat-filtro-todas" onclick="setCatFiltro('todas',this)">Todas</button>
         <button class="tx-filter-btn" id="cat-filtro-despesa" onclick="setCatFiltro('despesa',this)">Despesas</button>
-        <button class="tx-filter-btn" id="cat-filtro-receita" onclick="setCatFiltro('receita',this)">Receitas</button>
+        <button class="tx-filter-btn" id="cat-filtro-receita" onclick="setCatFiltro('receita',this)">Entradas</button>
       </div>
     </div>
     <div id="categorias-lista"></div>
@@ -727,6 +730,38 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="panel-title">Categorias padrão <span style="font-size:10px;color:var(--text3)">(sempre disponíveis)</span></div>
     <div id="categorias-padrao"></div>
   </div>
+</div>
+
+<!-- PERFIL (mobile) -->
+<div class="section" id="sec-perfil">
+  <div class="mobile-header">
+    <div style="font-size:15px;font-weight:600">Perfil</div>
+  </div>
+  <div class="page-header">
+    <div><div class="page-title">Perfil</div></div>
+  </div>
+  <div class="panel" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div id="perfil-sec-avatar" style="width:48px;height:48px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--green)">E</div>
+      <div>
+        <div style="font-size:15px;font-weight:500" id="perfil-sec-nome">—</div>
+        <div style="font-size:12px;color:var(--text3)" id="perfil-sec-email">—</div>
+      </div>
+    </div>
+    <button onclick="abrirAlterarSenha()" style="width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:14px;font-family:'DM Sans',sans-serif;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Alterar senha
+    </button>
+    <button onclick="toggleTema()" style="width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:14px;font-family:'DM Sans',sans-serif;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="tema-icon-sec"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <span id="tema-label-sec">Tema claro</span>
+    </button>
+    <button onclick="logout()" style="width:100%;text-align:left;background:none;border:none;color:var(--red);font-size:14px;font-family:'DM Sans',sans-serif;padding:12px 0;cursor:pointer;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair da conta
+    </button>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">simplo · finanças simples, vida organizada</div>
 </div>
 
 <!-- IA -->
@@ -786,7 +821,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <button onclick="setSection('ia');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>IA
     </button>
-    <button onclick="togglePerfilMenu(event);closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
+    <button onclick="setSection('perfil');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Perfil
     </button>
   </div>
@@ -809,12 +844,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="modal-title">Nova transação</div>
     <div class="tipo-toggle">
       <button class="tipo-btn active-des" id="tipo-des" onclick="setTipo('despesa')">Despesa</button>
-      <button class="tipo-btn" id="tipo-rec" onclick="setTipo('receita')">Receita</button>
+      <button class="tipo-btn" id="tipo-rec" onclick="setTipo('receita')">Entrada</button>
     </div>
     <div class="form-grid">
       <div class="form-group full"><label class="form-label">Descrição</label><input class="form-input" id="f-desc" placeholder="Ex: Compra no shopping..."></div>
       <div class="form-group"><label class="form-label">Valor total (R$)</label><input class="form-input" id="f-val" type="text" inputmode="decimal" placeholder="0,00" oninput="calcParcela()"></div>
-      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="f-data" type="date" onchange="atualizaInfoParcela()"></div>
+      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="f-data" type="date" onchange="atualizaInfoParcela()" style="height:42px"></div>
       <div class="form-group full"><label class="form-label">Categoria</label><select class="form-input" id="f-cat"></select></div>
       <div class="form-group full"><label class="form-label">Forma de pagamento</label>
         <select class="form-input" id="f-pag" onchange="onChangePag()">
@@ -1041,7 +1076,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </div>
       <div class="form-group">
         <label class="form-label">Últimos 4 dígitos</label>
-        <input class="form-input" id="cartao-ultimos4" placeholder="1234" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')">
+        <input class="form-input" id="cartao-ultimos4" placeholder="1234" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Limite do cartão (R$) — opcional</label>
+        <input class="form-input" id="cartao-limite" type="text" inputmode="decimal" placeholder="0,00" oninput="mascaraBR(this)">
       </div>
       <div class="form-group">
         <label class="form-label">Cor</label>
@@ -1077,7 +1116,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <label class="form-label">Tipo</label>
         <div class="tipo-toggle" style="margin-bottom:0">
           <button class="tipo-btn active-des" id="cat-tipo-des" onclick="setCatTipo('despesa')">Despesa</button>
-          <button class="tipo-btn" id="cat-tipo-rec" onclick="setCatTipo('receita')">Receita</button>
+          <button class="tipo-btn" id="cat-tipo-rec" onclick="setCatTipo('receita')">Entrada</button>
           <button class="tipo-btn" id="cat-tipo-amb" onclick="setCatTipo('ambos')">Ambos</button>
         </div>
       </div>
@@ -1216,7 +1255,7 @@ function setSection(sec){
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
-  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,categorias:6,ia:7};
+  const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,categorias:6,perfil:7,ia:8};
   document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
   // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
   const mIdx={dashboard:0,transacoes:1,investimentos:2,metas:3};
@@ -1287,7 +1326,7 @@ function renderDash(){
 
   // Cards principais
   document.getElementById('cards-dash').innerHTML=`
-    <div class="card"><div class="card-label">Receitas</div><div class="card-value green">${fmt(rec)}</div><div class="card-sub">${tm.filter(t=>t.tipo==='receita').length} entrada(s)</div></div>
+    <div class="card"><div class="card-label">Entradas</div><div class="card-value green">${fmt(rec)}</div><div class="card-sub">${tm.filter(t=>t.tipo==='receita').length} entrada(s)</div></div>
     <div class="card ${taxa>90?'alert-danger':taxa>70?'alert-warn':''}">
       <div class="card-label">Despesas</div><div class="card-value red">${fmt(des)}</div><div class="card-sub">${taxa}% da renda</div>
       <div class="alert-bar"><div class="alert-fill" style="width:${Math.min(100,taxa)}%;background:${taxa>90?'var(--red)':taxa>70?'var(--amber)':'var(--green)'}"></div></div>
@@ -1374,45 +1413,127 @@ function renderFluxo(tm,totalDias){
     if(t.tipo==='receita')saldoDia[d].rec+=Number(t.valor);
     else saldoDia[d].des+=Number(t.valor);
   });
-  const maxVal=Math.max(...Object.values(saldoDia).flatMap(d=>[d.rec,d.des]),1);
-  const hoje=new Date().getDate();
-  const dias=Array.from({length:totalDias},(_,i)=>i+1);
-  document.getElementById('flow-chart').innerHTML=dias.map(d=>{
+  // Calcular saldo acumulado dia a dia
+  let saldoAcum=0;
+  const saldoAcumDia={};
+  for(let d=1;d<=totalDias;d++){
     const v=saldoDia[d]||{rec:0,des:0};
-    const isFuture=mesMes===new Date().getMonth()&&mesAno===new Date().getFullYear()&&d>hoje;
-    const showLabel=d===1||d===Math.round(totalDias/2)||d===totalDias||d===hoje;
-    return`<div class="flow-day">
-      <div style="display:flex;gap:1px;align-items:flex-end;height:56px;width:100%">
-        ${v.rec>0?`<div style="flex:1;background:var(--green);opacity:${isFuture?0.4:0.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.rec/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
-        ${v.des>0?`<div style="flex:1;background:var(--red);opacity:${isFuture?0.4:0.8};border-radius:2px 2px 0 0;height:${Math.max(2,(v.des/maxVal)*54)}px"></div>`:'<div style="flex:1"></div>'}
+    saldoAcum+=v.rec-v.des;
+    saldoAcumDia[d]=saldoAcum;
+  }
+  const hoje=new Date();
+  const hojeD=hoje.getDate();
+  const isMesAtual=mesMes===hoje.getMonth()&&mesAno===hoje.getFullYear();
+  const maxAbs=Math.max(...Object.values(saldoAcumDia).map(v=>Math.abs(v)),1);
+  const dias=Array.from({length:totalDias},(_,i)=>i+1);
+  // Total entradas e saídas do mês
+  const totalRec=tm.filter(t=>t.tipo==='receita').reduce((s,t)=>s+Number(t.valor),0);
+  const totalDes=tm.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const saldoFinal=totalRec-totalDes;
+
+  const chartHTML=dias.map(d=>{
+    const v=saldoDia[d]||{rec:0,des:0};
+    const isFuture=isMesAtual&&d>hojeD;
+    const isHoje=isMesAtual&&d===hojeD;
+    const temMovimento=v.rec>0||v.des>0;
+    const saldo=v.rec-v.des;
+    const cor=saldo>=0?'var(--green)':'var(--red)';
+    const altura=temMovimento?Math.max(4,(Math.abs(saldo)/maxAbs)*64):2;
+    const showLabel=d===1||d===10||d===20||d===totalDias||(isHoje);
+    return`<div class="flow-day" title="${d}/${MESES_S[mesMes]}: ${saldo>=0?'+':''}${fmt(saldo)}">
+      <div style="height:64px;display:flex;align-items:flex-end;justify-content:center;width:100%">
+        <div style="width:80%;background:${isFuture?'var(--bg4)':cor};border-radius:3px 3px 0 0;height:${altura}px;opacity:${isFuture?0.4:1};border:${isHoje?'2px solid #fff':'none'};transition:height .4s"></div>
       </div>
-      <div class="flow-lbl">${showLabel?d:''}</div>
+      <div class="flow-lbl" style="color:${isHoje?'var(--green)':''};">${showLabel?d:''}</div>
     </div>`;
   }).join('');
+
+  document.getElementById('flow-chart').innerHTML=`
+    <div style="width:100%">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+        <span style="color:var(--text3)">Saldo dia a dia — cada barra = resultado do dia</span>
+        <span style="color:${saldoFinal>=0?'var(--green)':'var(--red)'};font-weight:500">Resultado: ${saldoFinal>=0?'+':''}${fmt(saldoFinal)}</span>
+      </div>
+      <div style="display:flex;gap:1px;align-items:flex-end;height:80px">${chartHTML}</div>
+      <div style="display:flex;gap:3px;margin-top:4px;height:3px">
+        ${dias.map(d=>{
+          const v=saldoDia[d]||{rec:0,des:0};
+          const s=v.rec-v.des;
+          return`<div style="flex:1;background:${s>0?'var(--green)':s<0?'var(--red)':'var(--bg4)'};border-radius:1px;opacity:0.5"></div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text3)">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block"></span>Dia positivo</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--red);display:inline-block"></span>Dia negativo</span>
+        ${isMesAtual?`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--bg4);display:inline-block"></span>Futuro</span>`:''}
+      </div>
+    </div>`;
 }
 
 function renderScore(taxa,alertasDisp,invTotal,metas){
-  // Score 0-100 baseado em 4 critérios
+  // Critérios com pesos
+  const criterios=[];
   let score=100;
-  // Taxa de gasto (peso 40)
-  if(taxa>100)score-=40;
-  else if(taxa>90)score-=30;
-  else if(taxa>80)score-=20;
-  else if(taxa>70)score-=10;
-  else if(taxa>60)score-=5;
-  // Alertas disparados (peso 20)
-  score-=Math.min(20,alertasDisp*7);
-  // Tem investimentos ativos (peso 20)
-  if(invTotal<=0)score-=20;
-  else if(invTotal<500)score-=10;
-  // Metas com progresso (peso 20)
-  const metasOk=metas.filter(m=>m.atual/m.alvo>=0.1).length;
-  if(metas.length===0)score-=10;
-  else if(metasOk===0)score-=20;
-  score=Math.max(0,Math.min(100,score));
 
+  // 1. Taxa de gasto (peso 35)
+  let pontosTaxa=35;
+  if(taxa>100)pontosTaxa=0;
+  else if(taxa>90)pontosTaxa=5;
+  else if(taxa>80)pontosTaxa=15;
+  else if(taxa>70)pontosTaxa=22;
+  else if(taxa>60)pontosTaxa=28;
+  score-=(35-pontosTaxa);
+  const taxaOk=taxa<=70;
+  criterios.push({
+    label:'Controle de gastos',
+    ok:taxaOk,
+    val:taxa+'% da renda',
+    dica:taxa>100?'Gastando mais do que ganha!':taxa>80?'Gastos elevados, tente reduzir':'Gastos controlados',
+    cor:taxa>90?'var(--red)':taxa>70?'var(--amber)':'var(--green)'
+  });
+
+  // 2. Alertas (peso 20)
+  score-=Math.min(20,alertasDisp*7);
+  criterios.push({
+    label:'Limites de gastos',
+    ok:alertasDisp===0,
+    val:alertasDisp===0?'Todos OK':alertasDisp+' limite(s) estourado(s)',
+    dica:alertasDisp===0?'Dentro dos limites configurados':'Configure alertas para controlar melhor',
+    cor:alertasDisp>0?'var(--red)':'var(--green)'
+  });
+
+  // 3. Investimentos (peso 25)
+  let pontosInv=25;
+  if(invTotal<=0)pontosInv=0;
+  else if(invTotal<500)pontosInv=8;
+  else if(invTotal<2000)pontosInv=16;
+  score-=(25-pontosInv);
+  criterios.push({
+    label:'Investimentos',
+    ok:invTotal>500,
+    val:invTotal>0?fmt(invTotal):'Nenhum ativo',
+    dica:invTotal<=0?'Comece a investir, mesmo que pouco':'Patrimônio investido',
+    cor:invTotal<=0?'var(--red)':invTotal<500?'var(--amber)':'var(--green)'
+  });
+
+  // 4. Metas (peso 20)
+  const metasOk=metas.filter(m=>Number(m.atual)/Number(m.alvo)>=0.1).length;
+  let pontosMetas=20;
+  if(metas.length===0)pontosMetas=5;
+  else if(metasOk===0)pontosMetas=8;
+  score-=(20-pontosMetas);
+  criterios.push({
+    label:'Metas financeiras',
+    ok:metas.length>0&&metasOk>0,
+    val:metas.length===0?'Nenhuma meta':metasOk+'/'+metas.length+' em progresso',
+    dica:metas.length===0?'Defina objetivos financeiros':'Continue progredindo nas metas',
+    cor:metas.length===0?'var(--red)':metasOk===0?'var(--amber)':'var(--green)'
+  });
+
+  score=Math.max(0,Math.min(100,score));
   const cor=score>=75?'var(--green)':score>=50?'var(--amber)':'var(--red)';
-  const label=score>=75?'Ótima':score>=50?'Regular':'Atenção';
+  const label=score>=80?'Excelente':score>=65?'Boa':score>=50?'Regular':'Atenção';
+  const emoji=score>=80?'😊':score>=65?'🙂':score>=50?'😐':'😟';
   const circ=2*Math.PI*42;
   const offset=circ-(score/100)*circ;
 
@@ -1427,17 +1548,16 @@ function renderScore(taxa,alertasDisp,invTotal,metas){
     <span class="score-lbl">${label}</span>
   `;
 
-  const criterios=[
-    {label:'Taxa de gasto',ok:taxa<=70,val:taxa+'%'},
-    {label:'Alertas OK',ok:alertasDisp===0,val:alertasDisp===0?'Nenhum':alertasDisp+' disparado(s)'},
-    {label:'Investindo',ok:invTotal>0,val:invTotal>0?fmt(invTotal):'Sem ativos'},
-    {label:'Metas ativas',ok:metas.length>0,val:metas.length+' meta(s)'},
-  ];
   document.getElementById('score-detalhes').innerHTML=criterios.map(cr=>`
-    <div style="display:flex;align-items:center;gap:6px">
-      <span style="color:${cr.ok?'var(--green)':'var(--red)'};font-size:11px">${cr.ok?'✓':'✗'}</span>
-      <span>${cr.label}</span>
-      <span style="margin-left:auto;color:var(--text3)">${cr.val}</span>
+    <div style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:12px;font-weight:500">${cr.label}</span>
+        <span style="font-size:11px;color:${cr.cor};font-weight:500">${cr.val}</span>
+      </div>
+      <div style="font-size:10px;color:var(--text3)">${cr.dica}</div>
+      <div style="height:3px;background:var(--bg4);border-radius:2px;margin-top:4px;overflow:hidden">
+        <div style="height:100%;background:${cr.cor};border-radius:2px;width:${cr.ok?'100%':'40%'};transition:width .5s"></div>
+      </div>
     </div>`).join('');
 }
 
@@ -1628,7 +1748,9 @@ async function delTx(id){
 
 // ── INVESTIMENTOS ─────────────────────────────────────────────
 async function atualizarCDIeRenderInv(){
-  if(!cdiAtual) await fetchCDI();
+  if(!cdiAtual){
+    try{ await fetchCDI(); }catch(e){}
+  }
   renderInv();
 }
 
@@ -1872,7 +1994,7 @@ function parseBR(s){
   return parseFloat(s.replace(/\./g,'').replace(',','.'));
 }
 function aplicaMascaras(){
-  const ids=['f-val','inv-aportado','inv-saldo','inv-update-aporte','inv-update-saldo','mf-alvo','mf-atual','al-limite','edit-val','edit-inv-aportado','edit-inv-saldo','edit-meta-alvo','edit-meta-atual'];
+  const ids=['f-val','inv-aportado','inv-saldo','inv-update-aporte','inv-update-saldo','mf-alvo','mf-atual','al-limite','edit-val','edit-inv-aportado','edit-inv-saldo','edit-meta-alvo','edit-meta-atual','cartao-limite'];
   ids.forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el._mask){
@@ -2590,7 +2712,8 @@ async function salvarCartao(){
   const editId = document.getElementById('cartao-edit-id').value;
   if(!apelido) return;
   if(ultimos4 && ultimos4.length !== 4){ toast('Informe os 4 últimos dígitos','err'); return; }
-  const payload = {apelido, bandeira, banco:banco||null, ultimos4:ultimos4||null, cor, user_id:currentUser?.id};
+  const limite=parseBR(document.getElementById('cartao-limite').value)||null;
+  const payload = {apelido, bandeira, banco:banco||null, ultimos4:ultimos4||null, cor, limite, user_id:currentUser?.id};
   let error;
   if(editId){
     ({error} = await sb.from('cartoes').update(payload).eq('id',parseInt(editId)));
@@ -2790,7 +2913,7 @@ function exportarPDF(){
   <div class="section">
     <div class="section-title">Resumo do mês</div>
     <div class="cards-row">
-      <div class="card green"><div class="card-label">Receitas</div><div class="card-value green">${fmt(rec)}</div></div>
+      <div class="card green"><div class="card-label">Entradas</div><div class="card-value green">${fmt(rec)}</div></div>
       <div class="card red"><div class="card-label">Despesas</div><div class="card-value red">${fmt(des)}</div><div style="font-size:10px;color:#888;margin-top:2px">${taxa}% da renda</div></div>
       <div class="card ${sal>=0?'green':'red'}"><div class="card-label">Saldo</div><div class="card-value ${sal>=0?'green':'red'}">${fmt(sal)}</div></div>
       <div class="card purple"><div class="card-label">Patrimônio invest.</div><div class="card-value purple">${fmt(invTotal)}</div></div>
@@ -3010,6 +3133,39 @@ function checkOnboarding(){
   }
 }
 
+
+// ── DATA SELECTS ──────────────────────────────────────────────
+const MESES_DATA = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function inicializaDataSelects(){
+  const hoje = new Date();
+  const diaEl = document.getElementById('f-data-dia');
+  const mesEl = document.getElementById('f-data-mes');
+  const anoEl = document.getElementById('f-data-ano');
+  if(!diaEl) return;
+  // Dias 1-31
+  diaEl.innerHTML = Array.from({length:31},(_,i)=>`<option value="${String(i+1).padStart(2,'0')}"${i+1===hoje.getDate()?' selected':''}>${i+1}</option>`).join('');
+  // Meses
+  mesEl.innerHTML = MESES_DATA.map((m,i)=>`<option value="${String(i+1).padStart(2,'0')}"${i===hoje.getMonth()?' selected':''}>${m}</option>`).join('');
+  // Anos (3 anos atrás até 2 anos à frente)
+  const anoAtual = hoje.getFullYear();
+  anoEl.innerHTML = Array.from({length:6},(_,i)=>{const a=anoAtual-3+i;return`<option value="${a}"${a===anoAtual?' selected':''}>${a}</option>`;}).join('');
+  sincronizaDataHidden();
+}
+
+function sincronizaDataHidden(){
+  const dia = document.getElementById('f-data-dia')?.value;
+  const mes = document.getElementById('f-data-mes')?.value;
+  const ano = document.getElementById('f-data-ano')?.value;
+  if(dia&&mes&&ano){
+    document.getElementById('f-data').value = `${ano}-${mes}-${dia}`;
+  }
+}
+
+function atualizaDataMes(){
+  sincronizaDataHidden();
+}
+
 // ── TEMA ──────────────────────────────────────────────────────
 function initTema(){
   const salvo = localStorage.getItem('simplo_tema') || 'dark';
@@ -3025,10 +3181,14 @@ function aplicarTema(tema){
   if(tema === 'light'){
     document.documentElement.setAttribute('data-theme','light');
     document.getElementById('tema-label').textContent = 'Tema escuro';
+    const tls=document.getElementById('tema-label-sec');if(tls)tls.textContent='Tema escuro';
+    const tis=document.getElementById('tema-icon-sec');if(tis)tis.innerHTML='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
     document.getElementById('tema-icon').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
   } else {
     document.documentElement.removeAttribute('data-theme');
     document.getElementById('tema-label').textContent = 'Tema claro';
+    const tlds=document.getElementById('tema-label-sec');if(tlds)tlds.textContent='Tema claro';
+    const tids=document.getElementById('tema-icon-sec');if(tids)tids.innerHTML='<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
     document.getElementById('tema-icon').innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
   }
 }
@@ -3185,6 +3345,10 @@ function onLogin(user){
   document.getElementById('perfil-nome-display').textContent=nome;
   // Sincronizar avatares nos headers mobile
   document.querySelectorAll('[id^="user-avatar-mob"]').forEach(el=>el.textContent=inicial);
+  const avatx=document.getElementById('user-avatar-mob-tx');if(avatx)avatx.textContent=inicial;
+  const ps=document.getElementById('perfil-sec-avatar');if(ps)ps.textContent=inicial;
+  const pn=document.getElementById('perfil-sec-nome');if(pn)pn.textContent=nome;
+  const pe=document.getElementById('perfil-sec-email');if(pe)pe.textContent=email;
   carregarTudo();
   checkOnboarding();
 }
