@@ -300,6 +300,24 @@ select.form-input{height:42px}
 
 
 
+
+/* ── A RECEBER ───────────────────────────────── */
+.ar-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px}
+.ar-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.ar-desc{font-size:14px;font-weight:600}
+.ar-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.ar-total{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--green)}
+.ar-progress{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.ar-progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .5s}
+.ar-parcelas{display:flex;flex-direction:column;gap:6px}
+.ar-parcela{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;background:var(--bg3)}
+.ar-parcela.recebido{opacity:.6}
+.ar-parcela.atrasado{border-left:3px solid var(--red)}
+.ar-parcela.pendente-hoje{border-left:3px solid var(--amber)}
+.ar-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.ar-status.recebido{background:var(--green-bg);color:var(--green)}
+.ar-status.pendente{background:var(--bg4);color:var(--text3)}
+.ar-status.atrasado{background:var(--red-bg);color:var(--red)}
 /* ── ANIMAÇÕES ──────────────────────────────── */
 @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes countUp{from{opacity:0}to{opacity:1}}
@@ -1235,6 +1253,92 @@ select.form-input{height:42px}
   </div>
 </div>
 
+<!-- Modal A Receber -->
+<div class="modal-overlay" id="modal-a-receber">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0" id="ar-modal-title">Novo A Receber</div>
+      <button onclick="fecharModalAReceber()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <input type="hidden" id="ar-edit-id">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Descrição</label>
+        <input class="form-input" id="ar-desc" placeholder="Ex: Acordo trabalhista, Venda do carro...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor total (R$)</label>
+        <input class="form-input" id="ar-valor-total" type="text" inputmode="decimal" placeholder="0,00" oninput="mascaraBR(this);calcArParcela()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nº de parcelas</label>
+        <select class="form-input" id="ar-parcelas" onchange="calcArParcela()">
+          ${Array.from({length:60},(_,i)=>`<option value="${i+1}">${i+1}x</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group full" id="ar-parcela-info" style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);display:none">
+        Cada parcela: <strong id="ar-parcela-val" style="color:var(--green)">—</strong>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Data da 1ª parcela</label>
+        <input class="form-input" id="ar-data-display" type="text" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)">
+        <input type="hidden" id="ar-data">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Categoria</label>
+        <select class="form-input" id="ar-cat">
+          <option>Honorários</option>
+          <option>Acordo</option>
+          <option>Alvará</option>
+          <option>Aluguel</option>
+          <option>Empréstimo</option>
+          <option>Freelance</option>
+          <option>Venda</option>
+          <option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Observação (opcional)</label>
+        <input class="form-input" id="ar-obs" placeholder="Ex: Processo 1234/2024, Comprador: João...">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModalAReceber()">Cancelar</button>
+      <button class="btn primary" onclick="salvarAReceber()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar Parcela A Receber -->
+<div class="modal-overlay" id="modal-confirmar-parcela">
+  <div class="modal" style="max-width:380px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0">Confirmar recebimento</div>
+      <button onclick="document.getElementById('modal-confirmar-parcela').classList.remove('open')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <input type="hidden" id="conf-parcela-id">
+    <input type="hidden" id="conf-ar-id">
+    <div id="conf-parcela-info" style="font-size:13px;color:var(--text2);margin-bottom:14px"></div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Valor recebido (R$)</label>
+      <input class="form-input" id="conf-parcela-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="mascaraBR(this)">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Data de recebimento</label>
+      <input class="form-input" id="conf-parcela-data-display" type="text" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)">
+      <input type="hidden" id="conf-parcela-data">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="document.getElementById('modal-confirmar-parcela').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="confirmarParcela()">Confirmar recebimento</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Recorrente -->
 <div class="modal-overlay" id="modal-recorrente">
   <div class="modal">
@@ -1440,6 +1544,7 @@ async function carregarTudo(){
     await carregarCartoes();
     await carregarCategorias();
     await carregarRecorrentes();
+    await carregarAReceber();
     document.getElementById('db-dot').className='db-dot ok';
     document.getElementById('db-label').textContent='Conectado';
     document.getElementById('db-label').style.color='var(--green)';
@@ -2732,6 +2837,321 @@ function renderCorPicker(){
     </button>`).join('');
 }
 
+
+// ── A RECEBER ─────────────────────────────────────────────────
+let aReceberList = [];
+let aReceberParcelas = [];
+let txFiltroAtual = 'todos';
+
+async function carregarAReceber(){
+  if(!currentUser) return;
+  const [rAR, rP] = await Promise.all([
+    sb.from('a_receber').select('*').eq('ativo',true).order('criado_em',{ascending:false}),
+    sb.from('a_receber_parcelas').select('*').order('data_prevista')
+  ]);
+  if(!rAR.error) aReceberList = rAR.data||[];
+  if(!rP.error) aReceberParcelas = rP.data||[];
+  // Atualizar status de atrasados
+  const hoje = new Date().toISOString().slice(0,10);
+  aReceberParcelas.forEach(p=>{
+    if(p.status==='pendente' && p.data_prevista < hoje) p.status='atrasado';
+  });
+  renderAReceber();
+  checkAReceberPendentes();
+}
+
+function checkAReceberPendentes(){
+  const hoje = new Date().toISOString().slice(0,10);
+  const pendentes = aReceberParcelas.filter(p=>
+    (p.status==='pendente'||p.status==='atrasado') &&
+    p.data_prevista <= hoje
+  );
+  if(pendentes.length > 0){
+    const totalPendente = pendentes.reduce((s,p)=>s+Number(p.valor_parcela),0);
+    // Adicionar ao banner do dashboard
+    const banner = document.getElementById('alertas-banner');
+    if(banner && !banner.innerHTML.includes('receber')){
+      const txt = `💰 <b>${pendentes.length}</b> parcela(s) a receber no valor de <b>${fmt(totalPendente)}</b>. <a href="#" onclick="setTxFiltroExterno('areceber');return false" style="color:var(--green);text-decoration:underline">Ver agora</a>`;
+      banner.style.display='block';
+      banner.innerHTML=(banner.innerHTML?banner.innerHTML+' · ':'')+txt;
+    }
+  }
+}
+
+function setTxFiltroExterno(filtro){
+  setSection('transacoes');
+  setTimeout(()=>{
+    const btn = document.getElementById('tf-areceber');
+    if(btn) setTxFiltro('areceber', btn);
+  },100);
+}
+
+function setTxFiltro(filtro, btn){
+  txFiltroAtual = filtro;
+  document.querySelectorAll('.tx-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const arPainel = document.getElementById('ar-painel');
+  const txLista = document.getElementById('tx-lista');
+  const txFiltros2 = document.querySelectorAll('#tf-cat,#tf-forma,#tf-cartao-id,#tx-resumo-cartoes');
+  if(filtro === 'areceber'){
+    if(arPainel) arPainel.style.display = 'block';
+    if(txLista) txLista.style.display = 'none';
+    txFiltros2.forEach(el=>{ if(el) el.style.display='none'; });
+    renderAReceber();
+  } else {
+    if(arPainel) arPainel.style.display = 'none';
+    if(txLista) txLista.style.display = 'block';
+    txFiltros2.forEach(el=>{ if(el) el.style.display=''; });
+    filtroTipo = filtro === 'todos' ? '' : filtro;
+    renderTxs();
+  }
+}
+
+function renderAReceber(){
+  const el = document.getElementById('ar-lista');
+  if(!el) return;
+
+  // Resumo
+  const totalAReceber = aReceberParcelas
+    .filter(p=>p.status!=='recebido')
+    .reduce((s,p)=>s+Number(p.valor_parcela),0);
+  const totalRecebido = aReceberParcelas
+    .filter(p=>p.status==='recebido')
+    .reduce((s,p)=>s+Number(p.valor_parcela),0);
+  const resumo = document.getElementById('ar-resumo-txt');
+  if(resumo) resumo.textContent = `Total a receber: ${fmt(totalAReceber)} · Já recebido: ${fmt(totalRecebido)}`;
+
+  if(!aReceberList.length){
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="empty-title">Nenhum A Receber cadastrado</div>
+      <div class="empty-sub">Cadastre acordos, honorários, vendas parceladas ou qualquer valor que vai receber ao longo do tempo.</div>
+      <button class="ob-btn" style="max-width:220px;padding:11px" onclick="abrirModalAReceber()">+ Cadastrar</button>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = aReceberList.map(ar => {
+    const parcelas = aReceberParcelas.filter(p=>p.a_receber_id===ar.id);
+    const recebidas = parcelas.filter(p=>p.status==='recebido').length;
+    const pct = parcelas.length > 0 ? Math.round((recebidas/parcelas.length)*100) : 0;
+    const atrasadas = parcelas.filter(p=>p.status==='atrasado').length;
+    const valorRecebido = parcelas.filter(p=>p.status==='recebido').reduce((s,p)=>s+Number(p.valor_parcela),0);
+
+    return `<div class="ar-item">
+      <div class="ar-header">
+        <div>
+          <div class="ar-desc">${ar.descricao}</div>
+          <div class="ar-meta">${ar.categoria} · ${parcelas.length}x · ${recebidas}/${parcelas.length} recebidas${atrasadas>0?` · <span style="color:var(--red)">${atrasadas} atrasada(s)</span>`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ar-total">${fmt(ar.valor_total)}</div>
+          <div style="font-size:11px;color:var(--text3)">${fmt(ar.valor_total/ar.parcelas)}/parcela</div>
+        </div>
+      </div>
+      <div class="ar-progress">
+        <div class="ar-progress-fill" style="width:${pct}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:10px">
+        <span>${fmt(valorRecebido)} recebido</span>
+        <span>${pct}% · ${fmt(ar.valor_total-valorRecebido)} restante</span>
+      </div>
+      <div class="ar-parcelas">
+        ${parcelas.slice(0,5).map(p=>{
+          const isHoje = p.data_prevista === new Date().toISOString().slice(0,10);
+          return `<div class="ar-parcela ${p.status}${isHoje?' pendente-hoje':''}">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500">Parcela ${p.numero_parcela}/${parcelas.length}</div>
+              <div style="font-size:10px;color:var(--text3)">${new Date(p.data_prevista+'T00:00:00').toLocaleDateString('pt-BR')}${p.status==='recebido'&&p.data_recebida?' · Recebido em '+new Date(p.data_recebida+'T00:00:00').toLocaleDateString('pt-BR'):''}</div>
+            </div>
+            <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);margin-right:8px">${fmt(p.valor_parcela)}</div>
+            <span class="ar-status ${p.status}">${p.status==='recebido'?'✓ Recebido':p.status==='atrasado'?'Atrasado':'Pendente'}</span>
+            ${p.status!=='recebido'?`<button class="btn sm primary" onclick="abrirConfirmarParcela(${p.id},${ar.id})" style="white-space:nowrap;font-size:10px">Receber</button>`:''}
+          </div>`;
+        }).join('')}
+        ${parcelas.length > 5 ? `<div style="text-align:center;font-size:11px;color:var(--text3);padding:6px;cursor:pointer" onclick="toggleVerTodas(${ar.id})">Ver todas as ${parcelas.length} parcelas ▼</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <button class="btn sm" onclick="editarAReceber(${ar.id})">Editar</button>
+        <button class="btn sm danger" onclick="deletarAReceber(${ar.id})">Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcArParcela(){
+  const total = parseBR(document.getElementById('ar-valor-total').value)||0;
+  const n = parseInt(document.getElementById('ar-parcelas').value)||1;
+  const info = document.getElementById('ar-parcela-info');
+  const val = document.getElementById('ar-parcela-val');
+  if(total > 0 && info && val){
+    info.style.display = 'block';
+    val.textContent = fmt(total/n) + ' por parcela';
+  }
+}
+
+function abrirModalAReceber(){
+  document.getElementById('ar-modal-title').textContent = 'Novo A Receber';
+  document.getElementById('ar-edit-id').value = '';
+  document.getElementById('ar-desc').value = '';
+  document.getElementById('ar-valor-total').value = '';
+  document.getElementById('ar-parcelas').value = '1';
+  document.getElementById('ar-obs').value = '';
+  document.getElementById('ar-cat').value = 'Honorários';
+  document.getElementById('ar-parcela-info').style.display = 'none';
+  // Data de hoje
+  const hoje = new Date();
+  const d=String(hoje.getDate()).padStart(2,'0'),m=String(hoje.getMonth()+1).padStart(2,'0'),a=hoje.getFullYear();
+  document.getElementById('ar-data-display').value = `${d}/${m}/${a}`;
+  document.getElementById('ar-data').value = `${a}-${m}-${d}`;
+  document.getElementById('modal-a-receber').classList.add('open');
+}
+
+function fecharModalAReceber(){ document.getElementById('modal-a-receber').classList.remove('open'); }
+
+function editarAReceber(id){
+  const ar = aReceberList.find(a=>a.id===id);
+  if(!ar) return;
+  document.getElementById('ar-modal-title').textContent = 'Editar A Receber';
+  document.getElementById('ar-edit-id').value = id;
+  document.getElementById('ar-desc').value = ar.descricao;
+  document.getElementById('ar-valor-total').value = Number(ar.valor_total).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('ar-parcelas').value = ar.parcelas;
+  document.getElementById('ar-obs').value = ar.observacao||'';
+  document.getElementById('ar-cat').value = ar.categoria;
+  const d1 = ar.data_primeira;
+  const [ano,mes,dia] = d1.split('-');
+  document.getElementById('ar-data-display').value = `${dia}/${mes}/${ano}`;
+  document.getElementById('ar-data').value = d1;
+  calcArParcela();
+  document.getElementById('modal-a-receber').classList.add('open');
+}
+
+async function salvarAReceber(){
+  const descricao = document.getElementById('ar-desc').value.trim();
+  const valor_total = parseBR(document.getElementById('ar-valor-total').value);
+  const parcelas = parseInt(document.getElementById('ar-parcelas').value);
+  const data_primeira = document.getElementById('ar-data').value;
+  const categoria = document.getElementById('ar-cat').value;
+  const observacao = document.getElementById('ar-obs').value.trim();
+  const editId = document.getElementById('ar-edit-id').value;
+
+  if(!descricao||!valor_total||!data_primeira){ toast('Preencha todos os campos','err'); return; }
+
+  const payload = {descricao,valor_total,parcelas,data_primeira,categoria,observacao:observacao||null,user_id:currentUser?.id};
+
+  if(editId){
+    const {error} = await sb.from('a_receber').update(payload).eq('id',parseInt(editId));
+    if(error){toast('Erro ao salvar','err');return;}
+    aReceberList = aReceberList.map(a=>a.id===parseInt(editId)?{...a,...payload}:a);
+  } else {
+    const {data:novo,error} = await sb.from('a_receber').insert(payload).select().single();
+    if(error){toast('Erro ao salvar','err');return;}
+    aReceberList.push(novo);
+    // Criar parcelas automaticamente
+    const valorParcela = valor_total/parcelas;
+    const parcelasArr = [];
+    for(let i=0;i<parcelas;i++){
+      const data = new Date(data_primeira+'T00:00:00');
+      data.setMonth(data.getMonth()+i);
+      parcelasArr.push({
+        a_receber_id: novo.id,
+        numero_parcela: i+1,
+        valor_parcela: Math.round(valorParcela*100)/100,
+        data_prevista: data.toISOString().slice(0,10),
+        status: 'pendente',
+        user_id: currentUser?.id
+      });
+    }
+    const {data:novasParcelas,error:ep} = await sb.from('a_receber_parcelas').insert(parcelasArr).select();
+    if(!ep && novasParcelas) aReceberParcelas.push(...novasParcelas);
+  }
+
+  fecharModalAReceber();
+  toast(editId?'Atualizado!':'A Receber cadastrado! Parcelas criadas automaticamente.');
+  renderAReceber();
+}
+
+async function deletarAReceber(id){
+  if(!confirm('Remover este A Receber e todas as suas parcelas?')) return;
+  const {error} = await sb.from('a_receber').delete().eq('id',id);
+  if(error){toast('Erro','err');return;}
+  aReceberList = aReceberList.filter(a=>a.id!==id);
+  aReceberParcelas = aReceberParcelas.filter(p=>p.a_receber_id!==id);
+  toast('Removido');
+  renderAReceber();
+}
+
+function abrirConfirmarParcela(parcelaId, arId){
+  const p = aReceberParcelas.find(x=>x.id===parcelaId);
+  const ar = aReceberList.find(x=>x.id===arId);
+  if(!p||!ar) return;
+  document.getElementById('conf-parcela-id').value = parcelaId;
+  document.getElementById('conf-ar-id').value = arId;
+  document.getElementById('conf-parcela-valor').value = Number(p.valor_parcela).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const hoje = new Date();
+  const d=String(hoje.getDate()).padStart(2,'0'),m=String(hoje.getMonth()+1).padStart(2,'0'),a=hoje.getFullYear();
+  document.getElementById('conf-parcela-data-display').value = `${d}/${m}/${a}`;
+  document.getElementById('conf-parcela-data').value = `${a}-${m}-${d}`;
+  document.getElementById('conf-parcela-info').innerHTML = `
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:600;font-size:13px">${ar.descricao}</div>
+        <div style="font-size:11px;color:var(--text3)">Parcela ${p.numero_parcela}/${ar.parcelas} · Prevista para ${new Date(p.data_prevista+'T00:00:00').toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;color:var(--green);font-weight:600">${fmt(p.valor_parcela)}</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px">Confirme o valor e a data de recebimento:</div>`;
+  document.getElementById('modal-confirmar-parcela').classList.add('open');
+}
+
+async function confirmarParcela(){
+  const parcelaId = parseInt(document.getElementById('conf-parcela-id').value);
+  const arId = parseInt(document.getElementById('conf-ar-id').value);
+  const valor = parseBR(document.getElementById('conf-parcela-valor').value);
+  const dataRecebida = document.getElementById('conf-parcela-data').value;
+  const ar = aReceberList.find(x=>x.id===arId);
+  const p = aReceberParcelas.find(x=>x.id===parcelaId);
+  if(!valor||!dataRecebida||!ar||!p){toast('Preencha todos os campos','err');return;}
+
+  // Criar transação de entrada
+  const {data:tx,error:txErr} = await sb.from('transacoes').insert({
+    tipo:'receita',
+    descricao:`${ar.descricao} (${p.numero_parcela}/${ar.parcelas})`,
+    valor,
+    categoria:ar.categoria,
+    data:dataRecebida,
+    forma_pagamento:'pix',
+    user_id:currentUser?.id
+  }).select().single();
+  if(txErr){toast('Erro ao lançar transação','err');return;}
+  txs.unshift(tx);
+
+  // Atualizar parcela
+  const {error:pErr} = await sb.from('a_receber_parcelas').update({
+    status:'recebido',
+    data_recebida:dataRecebida,
+    valor_parcela:valor,
+    transacao_id:tx.id
+  }).eq('id',parcelaId);
+  if(pErr){toast('Erro ao atualizar parcela','err');return;}
+
+  aReceberParcelas = aReceberParcelas.map(p=>p.id===parcelaId?{...p,status:'recebido',data_recebida:dataRecebida,valor_parcela:valor}:p);
+
+  document.getElementById('modal-confirmar-parcela').classList.remove('open');
+  toast(`✓ Parcela ${p.numero_parcela} confirmada! Entrada lançada.`);
+
+  // Verificar se todas as parcelas foram recebidas
+  const todasParcelas = aReceberParcelas.filter(x=>x.a_receber_id===arId);
+  if(todasParcelas.every(x=>x.status==='recebido')){
+    lancarConfetti();
+    toast(`🎉 ${ar.descricao} totalmente recebido!`, 'ok', 4000);
+  }
+
+  renderAReceber();
+  renderAll();
+}
+
 // ── RECORRENTES ───────────────────────────────────────────────
 let recorrentes = [];
 let lancamentos = [];
@@ -3459,6 +3879,24 @@ function exportarPDF(){
 
 
 
+
+/* ── A RECEBER ───────────────────────────────── */
+.ar-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px}
+.ar-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.ar-desc{font-size:14px;font-weight:600}
+.ar-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.ar-total{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--green)}
+.ar-progress{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.ar-progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .5s}
+.ar-parcelas{display:flex;flex-direction:column;gap:6px}
+.ar-parcela{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;background:var(--bg3)}
+.ar-parcela.recebido{opacity:.6}
+.ar-parcela.atrasado{border-left:3px solid var(--red)}
+.ar-parcela.pendente-hoje{border-left:3px solid var(--amber)}
+.ar-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.ar-status.recebido{background:var(--green-bg);color:var(--green)}
+.ar-status.pendente{background:var(--bg4);color:var(--text3)}
+.ar-status.atrasado{background:var(--red-bg);color:var(--red)}
 /* ── ANIMAÇÕES ──────────────────────────────── */
 @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes countUp{from{opacity:0}to{opacity:1}}
