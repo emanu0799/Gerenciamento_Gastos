@@ -900,6 +900,11 @@ select.form-input{height:42px}
   <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg2);border-radius:20px 20px 0 0;padding:16px 0 calc(16px + env(safe-area-inset-bottom));animation:fadeInUp .25s ease">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0 8px">
+      <button onclick="setSection('investimentos');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;font-family:'DM Sans',sans-serif;border-radius:12px">
+        <div style="width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>Invest.
+      </button>
       <button onclick="setSection('cartoes');closeMobMais()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;font-family:'DM Sans',sans-serif;border-radius:12px;transition:background .15s" onmousedown="this.style.background='var(--bg3)'" onmouseup="this.style.background='none'">
         <div style="width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -944,12 +949,12 @@ select.form-input{height:42px}
   <button class="mobile-nav-btn" onclick="setSection('transacoes')">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Transações
   </button>
-  <!-- FAB central -->
-  <button onclick="abrirModal()" style="background:var(--green);border:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:-16px;box-shadow:0 4px 16px rgba(45,212,160,.4);flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
+  <!-- FAB central contextual -->
+  <button id="fab-btn" onclick="fabAction()" style="background:var(--green);border:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:-16px;box-shadow:0 4px 16px rgba(45,212,160,.4);flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
     <svg fill="none" stroke="#0a1a14" stroke-width="2.5" viewBox="0 0 24 24" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
-  <button class="mobile-nav-btn" onclick="setSection('investimentos')">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Invest.
+  <button class="mobile-nav-btn" onclick="setSection('metas')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas
   </button>
   <button class="mobile-nav-btn" id="mob-mais-btn" onclick="toggleMobMais()">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="17" height="17"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>Mais
@@ -1064,7 +1069,12 @@ select.form-input{height:42px}
 <!-- Modal Editar Transação -->
 <div class="modal-overlay" id="modal-edit-tx">
   <div class="modal">
-    <div class="modal-title">Editar transação</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0">Editar transação</div>
+    <button onclick="fecharModalEditTx()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <input type="hidden" id="edit-tx-id">
     <div class="form-grid">
       <div class="form-group full"><label class="form-label">Descrição</label><input class="form-input" id="edit-desc" placeholder="Descrição"></div>
@@ -1170,7 +1180,12 @@ select.form-input{height:42px}
 <!-- Modal Cartão -->
 <div class="modal-overlay" id="modal-cartao">
   <div class="modal">
-    <div class="modal-title" id="cartao-modal-title">Novo cartão</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0"><div class="modal-title" id="cartao-modal-title">Novo cartão</div>
+    <button onclick="fecharModalCartao()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <input type="hidden" id="cartao-edit-id">
     <div class="form-grid">
       <div class="form-group full">
@@ -1223,7 +1238,12 @@ select.form-input{height:42px}
 <!-- Modal Recorrente -->
 <div class="modal-overlay" id="modal-recorrente">
   <div class="modal">
-    <div class="modal-title" id="rec-modal-title">Nova recorrente</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0"><div class="modal-title" id="rec-modal-title">Nova recorrente</div>
+    <button onclick="fecharModalRecorrente()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <input type="hidden" id="rec-edit-id">
     <div class="tipo-toggle" style="margin-bottom:14px">
       <button class="tipo-btn active-des" id="rec-tipo-des" onclick="setRecTipo('despesa')">Despesa</button>
@@ -1263,7 +1283,12 @@ select.form-input{height:42px}
 <!-- Modal Confirmar Recorrente -->
 <div class="modal-overlay" id="modal-confirmar-rec">
   <div class="modal">
-    <div class="modal-title">Confirmar lançamento</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0">Confirmar lançamento</div>
+    <button onclick="document.getElementById('modal-confirmar-rec').classList.remove('open')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <input type="hidden" id="confirmar-rec-id">
     <div id="confirmar-rec-info" style="font-size:13px;color:var(--text2);margin-bottom:14px"></div>
     <div class="form-group" style="margin-bottom:14px">
@@ -1280,7 +1305,12 @@ select.form-input{height:42px}
 <!-- Modal Categoria -->
 <div class="modal-overlay" id="modal-categoria">
   <div class="modal">
-    <div class="modal-title" id="cat-modal-title">Nova categoria</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0"><div class="modal-title" id="cat-modal-title">Nova categoria</div>
+    <button onclick="fecharModalCategoria()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <input type="hidden" id="cat-edit-id">
     <div class="form-grid">
       <div class="form-group full">
@@ -1332,7 +1362,12 @@ select.form-input{height:42px}
 <!-- Modal alterar senha -->
 <div class="modal-overlay" id="modal-senha">
   <div class="modal" style="max-width:360px">
-    <div class="modal-title">Alterar senha</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:0">Alterar senha</div>
+    <button onclick="document.getElementById('modal-senha').classList.remove('open')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
     <div class="form-group" style="margin-bottom:10px">
       <label class="form-label">Nova senha</label>
       <div style="position:relative">
@@ -2264,12 +2299,7 @@ document.getElementById('modal-inv').addEventListener('click',e=>{if(e.target===
 document.getElementById('modal-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalMeta();});
 document.getElementById('modal-alerta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalAlerta();});
 document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
-document.getElementById('modal-edit-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditTx();});
-document.getElementById('modal-senha').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
-document.getElementById('modal-cartao').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCartao();});
-document.getElementById('modal-categoria').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalCategoria();});
-document.getElementById('modal-recorrente').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalRecorrente();});
-document.getElementById('modal-confirmar-rec').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+// Modais fecham apenas pelo botão X ou Cancelar
 document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
 document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
 
