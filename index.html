@@ -1429,8 +1429,13 @@ function renderDash(){
   // Cards principais
   document.getElementById('cards-dash').innerHTML=`
     <div class="card"><div class="card-label">Entradas</div><div class="card-value green">${fmt(rec)}</div><div class="card-sub">${tm.filter(t=>t.tipo==='receita').length} entrada(s)</div></div>
-    <div class="card ${taxa>90?'alert-danger':taxa>70?'alert-warn':''}">
-      <div class="card-label">Despesas</div><div class="card-value red">${fmt(des)}</div><div class="card-sub">${taxa}% da renda</div>
+    <div class="card">
+      <div class="card-label">Despesas</div>
+      <div class="card-value red">${fmt(des)}</div>
+      <div class="card-sub" style="display:flex;align-items:center;gap:4px">
+        ${taxa>100?`<svg width="11" height="11" viewBox="0 0 24 24" fill="var(--red)" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.8" fill="#fff"/></svg>`:''}
+        <span style="color:${taxa>100?'var(--red)':taxa>70?'var(--amber)':'var(--text3)'}">${taxa}% da renda</span>
+      </div>
       <div class="alert-bar"><div class="alert-fill" style="width:${Math.min(100,taxa)}%;background:${taxa>90?'var(--red)':taxa>70?'var(--amber)':'var(--green)'}"></div></div>
     </div>
     <div class="card"><div class="card-label">Saldo do mês</div><div class="card-value ${sal>=0?'green':'red'}">${fmt(sal)}</div><div class="card-sub">do mês</div></div>
