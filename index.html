@@ -299,6 +299,36 @@ select.form-input{height:42px}
 
 
 
+
+/* ── ANIMAÇÕES ──────────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes celebrar{0%{transform:scale(1)}30%{transform:scale(1.15)}60%{transform:scale(0.95)}100%{transform:scale(1)}}
+.anim-fade{animation:fadeInUp .35s ease both}
+.anim-slide{animation:slideIn .3s ease both}
+.card{animation:fadeInUp .3s ease both}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+.card:nth-child(4){animation-delay:.2s}
+.tx-item{animation:fadeInUp .25s ease both}
+/* Confetti */
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;animation:confettiFall 2.5s ease-in forwards;pointer-events:none;z-index:9999}
+/* Toast melhorado */
+.toast{transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+/* Cor customizável */
+:root{--accent:#2dd4a0}
+[data-theme="light"]{--accent:#1aad82}
+/* Saudação */
+.greeting-bar{padding:10px 18px;background:var(--green-bg);border-radius:var(--radius-sm);margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:fadeInUp .4s ease}
+.greeting-text{font-size:13px;color:var(--green);font-weight:500}
+/* Cor picker no perfil */
+.cor-accent-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cor-accent-btn{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .2s}
+.cor-accent-btn.ativa{border-color:#fff;transform:scale(1.2)}
 /* ── RECORRENTES ─────────────────────────────── */
 .rec-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
 .rec-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -444,6 +474,10 @@ select.form-input{height:42px}
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="tema-icon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <span id="tema-label">Tema claro</span>
     </button>
+    <div style="padding:5px 8px 8px;border-top:1px solid var(--border);margin-top:2px">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:5px">Cor do app</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap" id="cor-accent-picker-mini"></div>
+    </div>
     <button onclick="logout()" style="width:100%;text-align:left;background:none;border:none;color:var(--red);font-size:12px;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:7px" onmouseover="this.style.background='var(--red-bg)'" onmouseout="this.style.background='none'">
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sair da conta
@@ -800,6 +834,13 @@ select.form-input{height:42px}
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="tema-icon-sec"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <span id="tema-label-sec">Tema claro</span>
     </button>
+    <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Cor de destaque
+      </div>
+      <div class="cor-accent-grid" id="cor-accent-picker"></div>
+    </div>
     <button onclick="logout()" style="width:100%;text-align:left;background:none;border:none;color:var(--red);font-size:14px;font-family:'DM Sans',sans-serif;padding:12px 0;cursor:pointer;display:flex;align-items:center;gap:10px">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sair da conta
@@ -2350,7 +2391,10 @@ async function updateMeta(){
   const {error}=await sb.from('metas').update({nome,alvo,atual}).eq('id',id);
   if(error){toast('Erro ao atualizar','err');return;}
   metas=metas.map(m=>m.id===id?{...m,nome,alvo,atual}:m);
-  fecharModalEditMeta();toast('Meta atualizada!');renderMetas();
+  fecharModalEditMeta();toast('Meta atualizada!');
+  // Confetti se meta completa
+  const metaAtual = metas.find(m=>m.id===parseInt(document.getElementById('edit-meta-id')?.value));
+  if(metaAtual && Number(metaAtual.atual) >= Number(metaAtual.alvo)) lancarConfetti();renderMetas();
 }
 
 
@@ -2488,6 +2532,139 @@ function exportarRelatorio(){
 
 
 
+
+
+// ── EXPERIÊNCIA & ANIMAÇÕES ───────────────────────────────────
+
+// Saudação por hora
+function getSaudacao(nome){
+  const h = new Date().getHours();
+  const primeiroNome = nome?.split(' ')[0] || '';
+  if(h >= 5  && h < 12) return `☀️ Bom dia, ${primeiroNome}!`;
+  if(h >= 12 && h < 18) return `👋 Boa tarde, ${primeiroNome}!`;
+  if(h >= 18 && h < 23) return `🌙 Boa noite, ${primeiroNome}!`;
+  return `✨ Olá, ${primeiroNome}!`;
+}
+
+function renderGreeting(nome){
+  const el = document.getElementById('greeting-bar');
+  if(!el) return;
+  const mensagens = [
+    getSaudacao(nome),
+    `💪 Cada real que você controla é um passo para a liberdade.`,
+    `📊 Acompanhar suas finanças já é um hábito incrível!`,
+    `🎯 Foco no objetivo — você está no caminho certo.`,
+    `💡 Pequenos hábitos financeiros fazem grandes diferenças.`,
+  ];
+  // Rotaciona mensagem por dia
+  const idx = new Date().getDate() % mensagens.length;
+  el.querySelector('.greeting-text').textContent = mensagens[idx];
+  el.style.display = 'flex';
+}
+
+// Confetti 🎉
+function lancarConfetti(){
+  const cores = ['#2dd4a0','#f5a623','#a78bfa','#f96b6b','#5b9cf6','#34d399'];
+  for(let i=0;i<40;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw;
+      top:-10px;
+      background:${cores[Math.floor(Math.random()*cores.length)]};
+      animation-delay:${Math.random()*1.2}s;
+      animation-duration:${1.8+Math.random()*1.5}s;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 3500);
+  }
+}
+
+// Toast melhorado com ícone
+function toast(msg, tipo='ok', duracao=2800){
+  const el = document.getElementById('toast');
+  const icone = tipo==='ok' ? '✓' : tipo==='err' ? '✕' : 'ℹ';
+  const cor = tipo==='ok' ? 'var(--green)' : tipo==='err' ? 'var(--red)' : 'var(--blue)';
+  el.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg2);border:1px solid ${cor};border-radius:var(--radius-sm);color:var(--text);font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);white-space:nowrap;max-width:90vw`;
+  el.innerHTML = `<span style="color:${cor};font-weight:700;font-size:15px">${icone}</span>${msg}`;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.style.display='none',300);}, duracao);
+}
+
+// Animação de número contando
+function animarNumero(el, valorFinal, prefixo='R$ ', negativo=false){
+  if(!el) return;
+  const dur = 600;
+  const inicio = Date.now();
+  const tick = () => {
+    const prog = Math.min(1,(Date.now()-inicio)/dur);
+    const ease = 1-Math.pow(1-prog,3);
+    const val = valorFinal * ease;
+    el.textContent = (negativo&&val>0?'-':'') + prefixo + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(prog < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// Cor de destaque customizável
+const CORES_ACCENT = [
+  {cor:'#2dd4a0',nome:'Verde Simplo'},
+  {cor:'#5b9cf6',nome:'Azul'},
+  {cor:'#a78bfa',nome:'Roxo'},
+  {cor:'#f5a623',nome:'Âmbar'},
+  {cor:'#f96b6b',nome:'Coral'},
+  {cor:'#34d399',nome:'Esmeralda'},
+  {cor:'#fb923c',nome:'Laranja'},
+  {cor:'#f472b6',nome:'Rosa'},
+];
+
+function initCorAccent(){
+  const salva = localStorage.getItem('simplo_cor_accent');
+  if(salva) aplicarCorAccent(salva, false);
+}
+
+function aplicarCorAccent(cor, salvar=true){
+  document.documentElement.style.setProperty('--green', cor);
+  // Ajustar green-bg com transparência
+  const hex = cor.replace('#','');
+  const r = parseInt(hex.slice(0,2),16);
+  const g = parseInt(hex.slice(2,4),16);
+  const b = parseInt(hex.slice(4,6),16);
+  document.documentElement.style.setProperty('--green-bg', `rgba(${r},${g},${b},0.12)`);
+  if(salvar) localStorage.setItem('simplo_cor_accent', cor);
+  // Atualizar picker
+  document.querySelectorAll('.cor-accent-btn').forEach(btn=>{
+    btn.classList.toggle('ativa', btn.dataset.cor===cor);
+  });
+}
+
+function renderCorPickerMini(){
+  const el = document.getElementById('cor-accent-picker-mini');
+  if(!el) return;
+  const atual = localStorage.getItem('simplo_cor_accent')||'#2dd4a0';
+  el.innerHTML = CORES_ACCENT.map(({cor})=>`
+    <button class="cor-accent-btn${cor===atual?' ativa':''}"
+      data-cor="${cor}"
+      style="background:${cor};width:18px;height:18px"
+      onclick="aplicarCorAccent('${cor}');renderCorPickerMini()">
+    </button>`).join('');
+}
+
+function renderCorPicker(){
+  const el = document.getElementById('cor-accent-picker');
+  if(!el) return;
+  const atual = localStorage.getItem('simplo_cor_accent')||'#2dd4a0';
+  el.innerHTML = CORES_ACCENT.map(({cor,nome})=>`
+    <button class="cor-accent-btn${cor===atual?' ativa':''}" 
+      data-cor="${cor}" title="${nome}"
+      style="background:${cor}"
+      onclick="aplicarCorAccent('${cor}')">
+    </button>`).join('');
+}
 
 // ── RECORRENTES ───────────────────────────────────────────────
 let recorrentes = [];
@@ -2722,7 +2899,7 @@ async function confirmarRecorrente(){
   }).select().single();
   if(!lErr) lancamentos.push(lanc);
   document.getElementById('modal-confirmar-rec').classList.remove('open');
-  toast(`${r.descricao} lançado!`);
+  toast(`✓ ${r.descricao} lançado com sucesso!`);
   renderRecorrentes();
   checkPendentes();
   renderAll();
@@ -2887,6 +3064,18 @@ function renderIconeGrid(){
   grid.innerHTML = Object.keys(ICONES).map(key=>`
     <button type="button" class="icone-btn${key===catIconeAtual?' sel':''}" onclick="selecionarIcone(this,'${key}')">
       <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16">${ICONES[key]}</svg>
+    </button>`).join('');
+}
+
+function renderCorPickerMini(){
+  const el = document.getElementById('cor-accent-picker-mini');
+  if(!el) return;
+  const atual = localStorage.getItem('simplo_cor_accent')||'#2dd4a0';
+  el.innerHTML = CORES_ACCENT.map(({cor})=>`
+    <button class="cor-accent-btn${cor===atual?' ativa':''}"
+      data-cor="${cor}"
+      style="background:${cor};width:18px;height:18px"
+      onclick="aplicarCorAccent('${cor}');renderCorPickerMini()">
     </button>`).join('');
 }
 
@@ -3203,6 +3392,36 @@ function exportarPDF(){
 
 
 
+
+/* ── ANIMAÇÕES ──────────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes celebrar{0%{transform:scale(1)}30%{transform:scale(1.15)}60%{transform:scale(0.95)}100%{transform:scale(1)}}
+.anim-fade{animation:fadeInUp .35s ease both}
+.anim-slide{animation:slideIn .3s ease both}
+.card{animation:fadeInUp .3s ease both}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+.card:nth-child(4){animation-delay:.2s}
+.tx-item{animation:fadeInUp .25s ease both}
+/* Confetti */
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;animation:confettiFall 2.5s ease-in forwards;pointer-events:none;z-index:9999}
+/* Toast melhorado */
+.toast{transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+/* Cor customizável */
+:root{--accent:#2dd4a0}
+[data-theme="light"]{--accent:#1aad82}
+/* Saudação */
+.greeting-bar{padding:10px 18px;background:var(--green-bg);border-radius:var(--radius-sm);margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:fadeInUp .4s ease}
+.greeting-text{font-size:13px;color:var(--green);font-weight:500}
+/* Cor picker no perfil */
+.cor-accent-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cor-accent-btn{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .2s}
+.cor-accent-btn.ativa{border-color:#fff;transform:scale(1.2)}
 /* ── RECORRENTES ─────────────────────────────── */
 .rec-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
 .rec-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -3763,6 +3982,9 @@ function onLogin(user){
   const pe=document.getElementById('perfil-sec-email');if(pe)pe.textContent=email;
   carregarTudo();
   checkOnboarding();
+  renderGreeting(nome);
+  initCorAccent();
+  setTimeout(()=>{renderCorPicker();renderCorPickerMini();},300);
 }
 
 async function logout(){
@@ -3795,6 +4017,7 @@ async function initAuth(){
 }
 
 initTema();
+initCorAccent();
 initAuth();
 </script>
 <script>
