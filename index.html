@@ -534,107 +534,89 @@ select.form-input{height:42px}
 
 <!-- DASHBOARD -->
 <div class="section active" id="sec-dashboard">
+
+  <!-- Mobile header -->
+  <div class="mobile-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:15px;font-weight:600">simplo</div>
+      <div class="month-sel" style="padding:3px 8px">
+        <button onclick="mudaMes(-1)" style="font-size:13px">&#8249;</button>
+        <span id="mes-label-mob" style="font-size:11px;min-width:60px;text-align:center"></span>
+        <button onclick="mudaMes(1)" style="font-size:13px">&#8250;</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
+      <div id="user-avatar-mob" onclick="setSection('perfil')" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer;-webkit-tap-highlight-color:transparent">?</div>
+    </div>
+  </div>
+
+  <!-- Desktop header -->
   <div class="page-header">
     <div><div class="page-title">Dashboard</div><div class="page-sub" id="dash-sub"></div></div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <div class="month-sel">
         <button onclick="mudaMes(-1)">&#8249;</button>
-        <span id="mes-label"></span>
+        <span id="mes-label" style="min-width:80px;text-align:center"></span>
         <button onclick="mudaMes(1)">&#8250;</button>
       </div>
       <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
     </div>
   </div>
 
-  <div class="mobile-header">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:15px;font-weight:600">Dashboard</div>
-      <div class="month-sel" style="padding:4px 8px">
-        <button onclick="mudaMes(-1)" style="font-size:13px">&#8249;</button>
-        <span id="mes-label-mob" style="font-size:11px;min-width:70px;text-align:center"></span>
-        <button onclick="mudaMes(1)" style="font-size:13px">&#8250;</button>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <button class="topbar-btn" onclick="abrirModal()" style="padding:6px 10px;font-size:11px">+</button>
-      <div id="user-avatar-mob" onclick="togglePerfilMenu(event)" style="width:28px;height:28px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--green);cursor:pointer">?</div>
-    </div>
-  </div>
-  <div id="alertas-banner" style="display:none;background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red)"></div>
+  <!-- Banner alertas -->
+  <div id="alertas-banner" style="display:none;background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--red)"></div>
 
-  <!-- Cards principais -->
-  <div class="cards" id="cards-dash" style="grid-template-columns:repeat(4,1fr)"></div>
-
-  <!-- Métricas secundárias -->
-  <div class="metric-row" id="metric-row"></div>
-
-  <!-- Cartões -->
-  <div class="panel" style="margin-bottom:14px">
-    <div class="panel-title">&#x1F4B3; Faturas estimadas</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap" id="cartoes-row"></div>
+  <!-- Saudação -->
+  <div class="greeting-bar" id="greeting-bar" style="display:none">
+    <span style="font-size:18px">💚</span>
+    <span class="greeting-text"></span>
   </div>
 
-  <!-- Fluxo de caixa + Score + Dica IA -->
-  <div class="panels" style="margin-bottom:14px">
-    <div class="panel full" style="grid-column:1/-1">
-      <div class="panel-title">
-        Fluxo de caixa — dia a dia
-        <div style="display:flex;gap:10px;font-size:10px">
-          <span style="color:var(--green)">&#9646; Entrada</span>
-          <span style="color:var(--red)">&#9646; Saída</span>
+  <!-- HERO CARD — saldo principal -->
+  <div id="dash-hero" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Saldo do mês</div>
+    <div id="hero-saldo" style="font-size:32px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px;margin-bottom:6px">R$ 0,00</div>
+    <div id="hero-alerta" style="display:none;font-size:11px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="hero-pills"></div>
+  </div>
+
+  <!-- CARD LIST — cada área financeira -->
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px" id="dash-cards-list"></div>
+
+  <!-- Saúde financeira -->
+  <div class="panel" style="margin-bottom:12px">
+    <div class="panel-title">Saúde financeira</div>
+    <div style="display:flex;align-items:flex-start;gap:16px">
+      <div style="flex-shrink:0">
+        <div id="score-ring" style="width:90px;height:90px;position:relative;display:flex;align-items:center;justify-content:center">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="36" fill="none" stroke="var(--bg4)" stroke-width="7"/>
+          </svg>
+          <div style="position:absolute;text-align:center">
+            <div class="score-val" style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace">—</div>
+            <div class="score-lbl" style="font-size:9px;color:var(--text3)">score</div>
+          </div>
         </div>
       </div>
-      <div id="flow-chart" style="display:flex;gap:2px;align-items:flex-end;height:70px;padding:0 2px"></div>
+      <div style="flex:1;min-width:0" id="score-detalhes"></div>
     </div>
   </div>
 
-  <!-- Score + Dica IA + Parcelas futuras -->
-  <div class="panels">
-    <div class="panel">
-      <div class="panel-title">&#x1F4CA; Saúde financeira</div>
-      <div style="display:flex;align-items:center;gap:20px">
-        <div class="score-ring" id="score-ring" style="width:110px;height:110px"></div>
-        <div id="score-detalhes" style="flex:1;font-size:12px;color:var(--text2);line-height:1.8"></div>
-      </div>
-      <div style="margin-top:14px">
-        <div class="panel-title" style="margin-bottom:8px">&#x1F4A1; Dica do mês
-          <button class="btn sm" onclick="gerarDicaIA()" style="font-size:11px">Gerar</button>
-        </div>
-        <div class="dica-loading" id="dica-loading">Analisando seus dados...</div>
-        <div class="dica-ia" id="dica-ia"></div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">&#x1F4C5; Parcelas futuras</div>
-      <div id="venc-list"></div>
-    </div>
+  <!-- Parcelas futuras -->
+  <div class="panel" style="margin-bottom:12px">
+    <div class="panel-title">📅 Parcelas futuras</div>
+    <div id="parcelas-list"></div>
   </div>
 
-  <!-- Categoria + Distribuição + Evolução + Ranking -->
-  <div class="panels">
-    <div class="panel"><div class="panel-title">Por categoria <span style="font-size:10px;color:var(--text3)">🔔 = alerta</span></div><div id="cat-list"></div></div>
-    <div class="panel">
-      <div class="panel-title">Distribuição</div>
-      <div class="donut-wrap">
-        <canvas id="donut" width="100" height="100" style="flex-shrink:0"></canvas>
-        <div class="donut-legend" id="donut-legend"></div>
-      </div>
+  <!-- Dica do mês -->
+  <div class="panel">
+    <div class="panel-title">💡 Dica do mês
+      <button class="btn sm" onclick="gerarDica()" id="btn-dica">Gerar</button>
     </div>
-    <div class="panel full">
-      <div class="panel-title">
-        Evolução mensal
-        <div style="display:flex;gap:10px;font-size:10px">
-          <span style="color:var(--green)">&#9646; Receitas</span>
-          <span style="color:var(--red)">&#9646; Despesas</span>
-        </div>
-      </div>
-      <div class="bars-wrap" id="evo-chart"></div>
-    </div>
-    <div class="panel full">
-      <div class="panel-title">&#127942; Ranking de gastos</div>
-      <div id="ranking-list"></div>
-    </div>
+    <div id="dica-content" style="font-size:13px;color:var(--text2);line-height:1.6"></div>
   </div>
+
 </div>
 
 <!-- TRANSAÇÕES -->
@@ -1411,11 +1393,7 @@ const fmtPct=v=>(v>=0?'+':'')+v.toFixed(2)+'%';
 function txsMes(){return txs.filter(t=>{const d=new Date(t.data+'T00:00:00');return d.getMonth()===mesMes&&d.getFullYear()===mesAno;});}
 function soma(arr,tipo){return arr.filter(t=>t.tipo===tipo).reduce((s,t)=>s+Number(t.valor),0);}
 
-function toast(msg,tipo='ok'){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.className='toast show '+(tipo==='ok'?'ok':'err');
-  setTimeout(()=>el.classList.remove('show'),2800);
-}
+// toast definida abaixo com versão melhorada
 function setLoading(on){document.getElementById('loading').style.display=on?'flex':'none';}
 
 // ── SUPABASE ──────────────────────────────────────────────────
@@ -1500,125 +1478,181 @@ function checkAlertas(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────
 function renderDash(){
-  const tm=txsMes();
-  const rec=soma(tm,'receita'),des=soma(tm,'despesa'),sal=rec-des;
-  const taxa=rec>0?Math.round((des/rec)*100):0;
-  document.getElementById('mes-label').textContent=MESES_S[mesMes]+' '+mesAno;
-  const mobLabel=document.getElementById('mes-label-mob');
-  if(mobLabel)mobLabel.textContent=MESES_S[mesMes]+' '+mesAno;
-  const txLabel=document.getElementById('mes-label-tx');
-  if(txLabel)txLabel.textContent=MESES_S[mesMes]+' '+mesAno;
-  const txLabelMob=document.getElementById('mes-label-tx-mob');
-  if(txLabelMob)txLabelMob.textContent=MESES_S[mesMes]+' '+mesAno;
-  document.getElementById('dash-sub').textContent=MESES[mesMes]+' de '+mesAno;
-  document.getElementById('tx-sub').textContent=MESES[mesMes]+' de '+mesAno;
-  const {catMap,disparados}=checkAlertas();
-  const invTotal=investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
-  const invAportado=investimentos.reduce((s,i)=>s+Number(i.valor_aportado),0);
-  const lucroInv=invTotal-invAportado;
+  const tm = txsMes();
+  const rec = tm.filter(t=>t.tipo==='receita').reduce((s,t)=>s+Number(t.valor),0);
+  const des = tm.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const saldo = rec - des;
+  const taxa = rec > 0 ? Math.round((des/rec)*100) : 0;
+  const hoje = new Date();
+  const diasNoMes = new Date(mesAno, mesMes+1, 0).getDate();
+  const diaAtual = mesMes === hoje.getMonth() && mesAno === hoje.getFullYear() ? hoje.getDate() : diasNoMes;
+  const diasRestantes = diasNoMes - diaAtual;
+  const mediaGasto = diaAtual > 0 ? des/diaAtual : 0;
 
-  // Patrimônio líquido = saldo + investimentos − parcelas futuras comprometidas
-  const hoje=new Date();
-  const parcelasFuturas=txs.filter(t=>{
-    const d=new Date(t.data+'T00:00:00');
-    return t.tipo==='despesa'&&t.parcelas>1&&(d.getMonth()>mesMes||(d.getMonth()===mesMes&&d.getDate()>hoje.getDate()));
-  }).reduce((s,t)=>s+Number(t.valor),0);
-  const patrimonioLiq=sal+invTotal-parcelasFuturas;
-
-  // Média de gasto diário
-  const diasPassados=Math.max(1,mesMes===hoje.getMonth()&&mesAno===hoje.getFullYear()?hoje.getDate():new Date(mesAno,mesMes+1,0).getDate());
-  const mediaDiaria=des/diasPassados;
-
-  // Dias restantes e projeção
-  const totalDias=new Date(mesAno,mesMes+1,0).getDate();
-  const diasRestantes=mesMes===hoje.getMonth()&&mesAno===hoje.getFullYear()?totalDias-hoje.getDate():0;
-  const projecaoDes=des+(mediaDiaria*diasRestantes);
-  const projecaoSobra=rec-projecaoDes;
-
-  // Cards principais
-  document.getElementById('cards-dash').innerHTML=`
-    <div class="card"><div class="card-label">Entradas</div><div class="card-value green">${fmt(rec)}</div><div class="card-sub">${tm.filter(t=>t.tipo==='receita').length} entrada(s)</div></div>
-    <div class="card">
-      <div class="card-label">Despesas</div>
-      <div class="card-value red">${fmt(des)}</div>
-      <div class="card-sub" style="display:flex;align-items:center;gap:4px">
-        ${taxa>100?`<svg width="11" height="11" viewBox="0 0 24 24" fill="var(--red)" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.8" fill="#fff"/></svg>`:''}
-        <span style="color:${taxa>100?'var(--red)':taxa>70?'var(--amber)':'var(--text3)'}">${taxa}% da renda</span>
-      </div>
-      <div class="alert-bar"><div class="alert-fill" style="width:${Math.min(100,taxa)}%;background:${taxa>90?'var(--red)':taxa>70?'var(--amber)':'var(--green)'}"></div></div>
-    </div>
-    <div class="card"><div class="card-label">Saldo do mês</div><div class="card-value ${sal>=0?'green':'red'}">${fmt(sal)}</div><div class="card-sub">do mês</div></div>
-    <div class="card"><div class="card-label">Patrimônio líquido</div><div class="card-value" style="color:var(--purple)">${fmt(patrimonioLiq)}</div><div class="card-sub">saldo + invest. − futuras</div></div>
-  `;
-
-  // Métricas secundárias
-  document.getElementById('metric-row').innerHTML=`
-    <div class="metric-sm"><div class="metric-sm-label">Gasto médio/dia</div><div class="metric-sm-val" style="color:var(--red)">${fmt(mediaDiaria)}</div></div>
-    <div class="metric-sm"><div class="metric-sm-label">Dias restantes</div><div class="metric-sm-val">${diasRestantes}d</div></div>
-    <div class="metric-sm"><div class="metric-sm-label">Projeção de sobra</div><div class="metric-sm-val" style="color:${projecaoSobra>=0?'var(--green)':'var(--red)'}">${fmt(projecaoSobra)}</div></div>
-    <div class="metric-sm"><div class="metric-sm-label">Rendimento invest.</div><div class="metric-sm-val" style="color:${lucroInv>=0?'var(--green)':'var(--red)'}">${lucroInv>=0?'+':''}${fmt(lucroInv)}</div></div>
-  `;
-
-  // Cartões — fatura estimada
-  // Faturas por cartão cadastrado
-  const faturasPorCartao={};
-  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
-    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
-  });
-  const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const cartoesDash = cartoes.length > 0
-    ? cartoes.map(ct=>`
-        <div class="cartao-card" onclick="document.getElementById('filtro-cartao-id').value='${ct.id}';setSection('transacoes')" style="cursor:pointer">
-          <div class="cartao-card-title"><span style="width:10px;height:10px;border-radius:50%;background:${ct.cor};display:inline-block"></span>${ct.apelido}${ct.ultimos4?' ••'+ct.ultimos4:''}</div>
-          <div class="cartao-card-val" style="color:${ct.cor}">${fmt(faturasPorCartao[ct.id]||0)}</div>
-          <div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div>
-        </div>`).join('')
-    : `<div class="cartao-card"><div class="cartao-card-title">Visa Bradesco</div><div class="cartao-card-val" style="color:#5b9cf6">${fmt(visaVal)}</div><div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div></div>
-       <div class="cartao-card"><div class="cartao-card-title">Mastercard Nubank</div><div class="cartao-card-val" style="color:#f96b6b">${fmt(masterVal)}</div><div class="cartao-card-sub">fatura estimada ${MESES_S[mesMes]}</div></div>`;
-  const totalCredito=tm.filter(t=>t.forma_pagamento==='credito'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  document.getElementById('cartoes-row').innerHTML=cartoesDash+`
-    <div class="cartao-card" style="flex:2">
-      <div class="cartao-card-title">Total no crédito</div>
-      <div class="cartao-card-val">${fmt(totalCredito)}</div>
-      <div class="cartao-card-sub">${tm.filter(t=>t.forma_pagamento==='credito').length} compra(s)</div>
-    </div>`;
-
-  // Fluxo de caixa dia a dia
-  renderFluxo(tm,totalDias);
-
-  // Score de saúde financeira
-  renderScore(taxa,disparados.length,invTotal,metas);
-
-  // Parcelas futuras (próximos 30 dias)
-  renderVencimentos();
-
-  // Categorias
-  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  const cl=document.getElementById('cat-list');
-  if(!cats.length){cl.innerHTML=`<div class="empty-state" style="padding:24px 12px">
-  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-  <div class="empty-title" style="font-size:13px">Sem despesas este mês</div>
-  <div class="empty-sub" style="font-size:12px">Que ótimo! Adicione transações para ver a análise por categoria.</div>
-</div>`;}
-  else{
-    cl.innerHTML=cats.map(([ct,v])=>{
-      const al=alertas.find(a=>a.categoria===ct);
-      const pct=des>0?Math.round((v/des)*100):0;
-      const overLimit=al&&v>=al.limite;
-      const nearLimit=al&&!overLimit&&v>=al.limite*.8;
-      return`<div class="cat-row"><div class="cat-head">
-        <span class="cat-name"><span class="cat-dot" style="background:${CORES[ct]||'#888'}"></span>${ct}</span>
-        <span class="cat-val">${fmt(v)}${al?` <span class="alert-icon">${overLimit?'🔴':nearLimit?'🟡':'🟢'}</span>`:''}</span>
-      </div>
-      <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${pct}%;background:${overLimit?'var(--red)':nearLimit?'var(--amber)':CORES[ct]||'#888'}"></div></div>
-      ${al?`<div style="font-size:10px;color:var(--text3);margin-top:2px">Limite: ${fmt(al.limite)} · ${overLimit?'<span style=color:var(--red)>ULTRAPASSADO</span>':nearLimit?'<span style=color:var(--amber)>Atenção</span>':'OK'}</div>`:''}
-      </div>`;
-    }).join('');
+  // ── HERO CARD ──────────────────────────────────────────────
+  const heroSaldo = document.getElementById('hero-saldo');
+  const heroAlerta = document.getElementById('hero-alerta');
+  if(heroSaldo){
+    heroSaldo.textContent = (saldo < 0 ? '-' : '') + 'R$ ' + Math.abs(saldo).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    heroSaldo.style.color = saldo >= 0 ? 'var(--green)' : 'var(--red)';
   }
-  desenhaDonut(cats,des);
-  renderEvo();
-  renderRanking(cats,des);
+  if(heroAlerta){
+    if(taxa > 100){
+      heroAlerta.style.display = 'flex';
+      heroAlerta.style.alignItems = 'center';
+      heroAlerta.style.gap = '4px';
+      heroAlerta.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="var(--red)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="17" r=".8" fill="#fff"/></svg><span style="color:var(--red)">${taxa}% da renda · ${diasRestantes}d restantes</span>`;
+    } else {
+      heroAlerta.style.display = 'block';
+      heroAlerta.style.color = 'var(--text3)';
+      heroAlerta.textContent = `${taxa}% da renda · ${diasRestantes} dias restantes`;
+    }
+  }
+
+  // Pills do hero
+  const heroPills = document.getElementById('hero-pills');
+  if(heroPills){
+    heroPills.innerHTML = `
+      <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        ${fmt(rec)}
+      </div>
+      <div style="background:var(--red-bg);border:1px solid var(--red);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--red);display:flex;align-items:center;gap:4px">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        ${fmt(des)}
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text2)">
+        média ${fmt(mediaGasto)}/dia
+      </div>`;
+  }
+
+  // ── CARD LIST ─────────────────────────────────────────────
+  const invTotal = investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
+  const invRend = investimentos.reduce((s,i)=>s+(Number(i.saldo_atual)-Number(i.valor_aportado)),0);
+  const faturaTotal = cartoes.reduce((acc,ct)=>{
+    const fat = txsMes().filter(t=>t.cartao_id===ct.id&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+    return acc+fat;
+  },0);
+  const proximasParcelas = txs.filter(t=>{
+    if(!t.parcela_atual||!t.parcelas) return false;
+    const dataT = new Date(t.data+'T00:00:00');
+    const limite = new Date(); limite.setDate(limite.getDate()+30);
+    return dataT > new Date() && dataT <= limite && t.parcela_atual < t.parcelas;
+  });
+  const totalProxParcelas = proximasParcelas.reduce((s,t)=>s+Number(t.valor),0);
+
+  const cardsList = document.getElementById('dash-cards-list');
+  if(cardsList){
+    const cards = [
+      {
+        icon: `<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>`,
+        cor: cartoes.length > 0 ? 'var(--red)' : 'var(--text3)',
+        bg: 'var(--red-bg)',
+        titulo: 'Faturas estimadas',
+        sub: cartoes.length > 0 ? cartoes.map(ct=>`${ct.apelido}${ct.ultimos4?' ••'+ct.ultimos4:''}`).join(' · ') : 'Sem cartões cadastrados',
+        valor: fmt(faturaTotal),
+        corValor: 'var(--red)',
+        onclick: "setSection('cartoes')"
+      },
+      {
+        icon: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+        cor: 'var(--amber)',
+        bg: 'var(--amber-bg)',
+        titulo: 'Próximas parcelas',
+        sub: proximasParcelas.length > 0 ? `${proximasParcelas.length} vencimento(s) nos próximos 30 dias` : 'Nenhuma parcela futura',
+        valor: fmt(totalProxParcelas),
+        corValor: 'var(--amber)',
+        onclick: "setSection('transacoes')"
+      },
+      {
+        icon: `<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>`,
+        cor: 'var(--green)',
+        bg: 'var(--green-bg)',
+        titulo: 'Investimentos',
+        sub: investimentos.length > 0 ? `${investimentos.length} ativo(s) · ${invRend >= 0 ? '+' : ''}${fmt(invRend)} rendimento` : 'Nenhum investimento',
+        valor: fmt(invTotal),
+        corValor: 'var(--green)',
+        onclick: "setSection('investimentos')"
+      },
+      {
+        icon: `<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+        cor: 'var(--purple)',
+        bg: 'rgba(167,139,250,.12)',
+        titulo: 'Patrimônio líquido',
+        sub: 'saldo + investimentos − parcelas futuras',
+        valor: fmt(saldo + invTotal - totalProxParcelas),
+        corValor: (saldo + invTotal - totalProxParcelas) >= 0 ? 'var(--green)' : 'var(--red)',
+        onclick: null
+      },
+    ];
+
+    cardsList.innerHTML = cards.map(card=>{
+    const clickable = card.onclick ? 'cursor:pointer' : '';
+    const onclickAttr = card.onclick ? 'onclick="'+card.onclick+'"' : '';
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;'+clickable+'" '+onclickAttr+'>'
+      + '<div style="width:40px;height:40px;border-radius:12px;background:'+card.bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      + '<svg width="18" height="18" fill="none" stroke="'+card.cor+'" stroke-width="2" viewBox="0 0 24 24">'+card.icon+'</svg>'
+      + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:500;color:var(--text)">'+card.titulo+'</div>'
+      + '<div style="font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+card.sub+'</div>'
+      + '</div>'
+      + '<div style="font-size:15px;font-weight:600;font-family:monospace;color:'+card.corValor+';white-space:nowrap">'+card.valor+'</div>'
+      + (card.onclick ? '<svg width="14" height="14" fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' : '')
+      + '</div>';
+  }).join('');
+  }
+
+  // ── SCORE ─────────────────────────────────────────────────
+  const alertasDisp = alertas.filter(a=>{
+    const gasto = tm.filter(t=>t.categoria===a.categoria&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+    return gasto >= Number(a.limite);
+  }).length;
+  renderScore(taxa, alertasDisp, invTotal, metas);
+
+  // ── PARCELAS FUTURAS ──────────────────────────────────────
+  const parcelasEl = document.getElementById('parcelas-list');
+  if(parcelasEl){
+    const proxTxs = txs.filter(t=>{
+      if(!t.parcela_atual||!t.parcelas) return false;
+      const d = new Date(t.data+'T00:00:00');
+      const lim = new Date(); lim.setDate(lim.getDate()+45);
+      return d > new Date() && d <= lim;
+    }).sort((a,b)=>new Date(a.data)-new Date(b.data)).slice(0,6);
+
+    if(!proxTxs.length){
+      parcelasEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">Nenhuma parcela nos próximos 45 dias.</div>';
+    } else {
+      parcelasEl.innerHTML = proxTxs.map(t=>{
+        const d = new Date(t.data+'T00:00:00');
+        const dia = String(d.getDate()).padStart(2,'0');
+        const mes = MESES_S[d.getMonth()];
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="width:36px;text-align:center;flex-shrink:0">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${dia}</div>
+            <div style="font-size:9px;color:var(--text3)">${mes}</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.descricao}</div>
+            <div style="font-size:10px;color:var(--text3)">${t.parcela_atual}/${t.parcelas}x</div>
+          </div>
+          <div style="font-size:13px;font-family:monospace;color:var(--red)">-${fmt(t.valor)}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── LABELS ────────────────────────────────────────────────
+  document.getElementById('mes-label').textContent = MESES_S[mesMes]+' '+mesAno;
+  const mobLabel = document.getElementById('mes-label-mob');
+  if(mobLabel) mobLabel.textContent = MESES_S[mesMes]+' '+mesAno;
+  const txLabel = document.getElementById('mes-label-tx');
+  if(txLabel) txLabel.textContent = MESES_S[mesMes]+' '+mesAno;
+  const txLabelMob = document.getElementById('mes-label-tx-mob');
+  if(txLabelMob) txLabelMob.textContent = MESES_S[mesMes]+' '+mesAno;
+  document.getElementById('dash-sub').textContent = MESES[mesMes]+' de '+mesAno;
+  const txSub = document.getElementById('tx-sub');
+  if(txSub) txSub.textContent = MESES[mesMes]+' de '+mesAno;
 }
 
 function renderFluxo(tm,totalDias){
@@ -2650,15 +2684,32 @@ function lancarConfetti(){
 }
 
 // Toast melhorado com ícone
-function toast(msg, tipo='ok', duracao=2800){
+function toast(msg, tipo, duracao){
+  if(!tipo) tipo='ok';
+  if(!duracao) duracao=2800;
   const el = document.getElementById('toast');
   const icone = tipo==='ok' ? '✓' : tipo==='err' ? '✕' : 'ℹ';
   const cor = tipo==='ok' ? 'var(--green)' : tipo==='err' ? 'var(--red)' : 'var(--blue)';
-  el.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg2);border:1px solid ${cor};border-radius:var(--radius-sm);color:var(--text);font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);white-space:nowrap;max-width:90vw`;
-  el.innerHTML = `<span style="color:${cor};font-weight:700;font-size:15px">${icone}</span>${msg}`;
+  el.style.display = 'flex';
+  el.style.alignItems = 'center';
+  el.style.gap = '8px';
+  el.style.padding = '10px 16px';
+  el.style.background = 'var(--bg2)';
+  el.style.border = '1px solid ' + cor;
+  el.style.borderRadius = 'var(--radius-sm)';
+  el.style.color = 'var(--text)';
+  el.style.fontSize = '13px';
+  el.style.zIndex = '9999';
+  el.style.position = 'fixed';
+  el.style.bottom = '80px';
+  el.style.left = '50%';
+  el.style.transform = 'translateX(-50%)';
+  el.style.whiteSpace = 'nowrap';
+  el.style.maxWidth = '90vw';
   el.style.opacity = '1';
+  el.innerHTML = '<span style="color:'+cor+';font-weight:700;font-size:15px">'+icone+'</span> '+msg;
   clearTimeout(el._t);
-  el._t = setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.style.display='none',300);}, duracao);
+  el._t = setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.style.display='none';},300);}, duracao);
 }
 
 // Animação de número contando
