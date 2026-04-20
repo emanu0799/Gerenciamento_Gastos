@@ -700,8 +700,20 @@ select.form-input{height:42px}
       <option value="master_nubank">Master Nubank</option>
     </select>
   </div>
-  <div id="tx-cartao-resumo" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap"></div>
-  <div class="panel" style="padding:0 18px"><div id="tx-list"></div></div>
+  <div id="tx-resumo-cartoes" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap"></div>
+  <div class="panel" style="padding:0 18px"><div id="tx-lista"></div></div>
+
+  <!-- Painel A Receber -->
+  <div id="ar-painel" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:14px;font-weight:600">A Receber</div>
+        <div style="font-size:11px;color:var(--text3)" id="ar-resumo-txt"></div>
+      </div>
+      <button class="topbar-btn" onclick="abrirModalAReceber()">+ Novo</button>
+    </div>
+    <div id="ar-lista"></div>
+  </div>
 </div>
 
 <!-- INVESTIMENTOS -->
