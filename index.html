@@ -682,10 +682,11 @@ select.form-input{height:42px}
       <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
     </div>
   </div>
-  <div class="tx-filters">
-    <button class="tx-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
-    <button class="tx-filter-btn" onclick="setFiltro('receita',this)">Entradas</button>
-    <button class="tx-filter-btn" onclick="setFiltro('despesa',this)">Despesas</button>
+  <div class="tx-filters" id="tx-filters">
+    <button class="tx-filter-btn active" id="tf-todos" onclick="setTxFiltro('todos',this)">Todos</button>
+    <button class="tx-filter-btn" id="tf-receita" onclick="setTxFiltro('receita',this)">Entradas</button>
+    <button class="tx-filter-btn" id="tf-despesa" onclick="setTxFiltro('despesa',this)">Despesas</button>
+    <button class="tx-filter-btn" id="tf-areceber" onclick="setTxFiltro('areceber',this)" style="color:var(--green)">💰 A Receber</button>
     <select class="form-input" id="filtro-cat" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px"></select>
     <select class="form-input" id="filtro-pag" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
       <option value="todos">Todas formas</option>
@@ -2085,7 +2086,7 @@ function filtrarCartao(key){
   renderTxs();
 }
 
-function setFiltro(tipo,btn){filtroTipo=tipo;document.querySelectorAll('.tx-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTxs();}
+function setFiltro(tipo,btn){setTxFiltro(tipo==='receita'?'receita':tipo==='despesa'?'despesa':'todos',btn);}
 async function delTx(id){
   if(!confirm('Remover esta transação?'))return;
   const {error}=await sb.from('transacoes').delete().eq('id',id);
