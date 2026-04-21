@@ -646,11 +646,14 @@ select.form-input{height:42px}
       <button class="topbar-btn" onclick="abrirModal()">+ Transação</button>
     </div>
   </div>
-  <div class="tx-filters">
-    <button class="tx-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
-    <button class="tx-filter-btn" onclick="setFiltro('receita',this)">Entradas</button>
-    <button class="tx-filter-btn" onclick="setFiltro('despesa',this)">Despesas</button>
-    <select class="form-input" id="filtro-cat" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px"></select>
+  <div class="tx-filters" id="tx-filters">
+    <button class="tx-filter-btn active" id="tf-todos" onclick="setTxFiltro('todos',this)">Todos</button>
+    <button class="tx-filter-btn" id="tf-receita" onclick="setTxFiltro('receita',this)">Entradas</button>
+    <button class="tx-filter-btn" id="tf-despesa" onclick="setTxFiltro('despesa',this)">Despesas</button>
+    <button class="tx-filter-btn" id="tf-areceber" onclick="setTxFiltro('areceber',this)" style="color:var(--green)">A Receber</button>
+    <select class="form-input" id="filtro-cat" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
+      <option value="todas">Todas categorias</option>
+    </select>
     <select class="form-input" id="filtro-pag" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
       <option value="todos">Todas formas</option>
       <option value="pix">PIX</option>
@@ -659,8 +662,6 @@ select.form-input{height:42px}
     </select>
     <select class="form-input" id="filtro-cartao" onchange="renderTxs()" style="width:auto;padding:4px 9px;font-size:11.5px">
       <option value="todos">Todos os cartões</option>
-      <option value="visa_bradesco">Visa Bradesco</option>
-      <option value="master_nubank">Master Nubank</option>
     </select>
   </div>
   <div class="tx-resumo-bar" id="tx-resumo-top" style="margin-bottom:10px"></div>
@@ -2283,7 +2284,16 @@ function setTipo(tipo){
 }
 function atualizaCats(){
   const cats = getCatsParaTipo(tipoForm);
-  document.getElementById('f-cat').innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+  const fcat = document.getElementById('f-cat');
+  if(fcat) fcat.innerHTML = cats.map(cat=>'<option>'+cat+'</option>').join('');
+  // Popular filtro-cat com categorias das transações do mês
+  const filtroEl = document.getElementById('filtro-cat');
+  if(filtroEl){
+    const cur = filtroEl.value;
+    const catsUsadas = [...new Set(txsMes().map(t=>t.categoria).filter(Boolean))].sort();
+    filtroEl.innerHTML = '<option value="todas">Todas categorias</option>'
+      + catsUsadas.map(cat=>'<option value="'+cat+'"'+(cat===cur?' selected':'')+'>'+ cat+'</option>').join('');
+  }
 }
 function onChangePag(){
   const pag=document.getElementById('f-pag').value;
