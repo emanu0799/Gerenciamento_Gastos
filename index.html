@@ -1938,15 +1938,15 @@ function renderTxs(){
   const des = tm.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
   const resumoEl = document.getElementById('tx-resumo-top');
   if(resumoEl){
-    resumoEl.innerHTML = `
-      <div class="tx-resumo-card">
-        <div class="tx-resumo-label">Entradas</div>
-        <div class="tx-resumo-val" style="color:var(--green)">+${fmt(rec)}</div>
-      </div>
-      <div class="tx-resumo-card">
-        <div class="tx-resumo-label">Despesas</div>
-        <div class="tx-resumo-val" style="color:var(--red)">-${fmt(des)}</div>
-      </div>`;
+    resumoEl.innerHTML =
+      '<div class="tx-resumo-card">'
+      + '<div class="tx-resumo-label">Entradas</div>'
+      + '<div class="tx-resumo-val" style="color:var(--green)">+'+fmt(rec)+'</div>'
+      + '</div>'
+      + '<div class="tx-resumo-card">'
+      + '<div class="tx-resumo-label">Despesas</div>'
+      + '<div class="tx-resumo-val" style="color:var(--red)">-'+fmt(des)+'</div>'
+      + '</div>';
   }
 
   // Filtrar
@@ -2009,7 +2009,7 @@ function renderTxs(){
           const isRec = t.tipo==='receita';
           const corValor = isRec ? 'var(--green)' : 'var(--red)';
           const sinal = isRec ? '+' : '-';
-          const parc = t.parcelas>1 ? '<span class="tx-tag-parc">'+t.parcela_atual+'/'+t.parcelas+'x</span>' : '';
+          const parc = t.parcelas>1;
           const cartaoNome = t.cartao_id ? (cartoes.find(ct=>ct.id===t.cartao_id)?.apelido||'') : '';
           const formaPag = cartaoNome || FORMA_LABEL[t.forma_pagamento] || (t.forma_pagamento||'').toUpperCase();
           
