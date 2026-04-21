@@ -2022,7 +2022,7 @@ function renderTxs(){
             + '<div class="tx-tags">'
             + '<span class="tx-tag">'+((t.categoria)||'Outros')+'</span>'
             + (formaPag?'<span class="tx-tag">'+formaPag+'</span>':'')
-            + parc
+            + (parc?'<span class="tx-tag-parc">'+t.parcela_atual+'/'+t.parcelas+'x</span>':'')
             + '</div></div>'
             + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">'
             + '<div class="tx-val" style="color:'+corValor+'">'+sinal+''+fmt(t.valor)+'</div>'
