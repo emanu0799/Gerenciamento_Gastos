@@ -663,8 +663,9 @@ select.form-input{height:42px}
       <option value="master_nubank">Master Nubank</option>
     </select>
   </div>
-  <div id="tx-cartao-resumo" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap"></div>
-  <div class="panel" style="padding:0 18px"><div id="tx-list"></div></div>
+  <div class="tx-resumo-bar" id="tx-resumo-top" style="margin-bottom:10px"></div>
+  <div id="tx-resumo-cartoes" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"></div>
+  <div class="panel" style="padding:0 18px"><div id="tx-lista"></div></div>
 </div>
 
 <!-- INVESTIMENTOS -->
@@ -946,7 +947,12 @@ select.form-input{height:42px}
 <!-- Modal Transação -->
 <div class="modal-overlay" id="modal-tx">
   <div class="modal">
-    <div class="modal-title">Nova transação</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0" id="modal-form-title">Nova transação</div>
+      <button onclick="fecharModal()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex;-webkit-tap-highlight-color:transparent">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
     <div class="tipo-toggle">
       <button class="tipo-btn active-des" id="tipo-des" onclick="setTipo('despesa')">Despesa</button>
       <button class="tipo-btn" id="tipo-rec" onclick="setTipo('receita')">Entrada</button>
@@ -1476,6 +1482,32 @@ function checkAlertas(){
   return{catMap,disparados};
 }
 
+const CAT_ICONS = {
+  'Alimentação': {cor:'#f96b6b',icon:`<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>`},
+  'Moradia': {cor:'#5b9cf6',icon:`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`},
+  'Transporte': {cor:'#f5a623',icon:`<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>`},
+  'Saúde': {cor:'#34d399',icon:`<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>`},
+  'Educação': {cor:'#5b9cf6',icon:`<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>`},
+  'Lazer': {cor:'#a78bfa',icon:`<circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85"/>`},
+  'Vestuário': {cor:'#fb923c',icon:`<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>`},
+  'Assinaturas': {cor:'#a78bfa',icon:`<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>`},
+  'Investimentos': {cor:'#2dd4a0',icon:`<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>`},
+  'Salário': {cor:'#2dd4a0',icon:`<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`},
+  'Freelance': {cor:'#2dd4a0',icon:`<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>`},
+  'Honorários': {cor:'#2dd4a0',icon:`<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>`},
+  'Acordo': {cor:'#f5a623',icon:`<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>`},
+  'Outros': {cor:'#9090a0',icon:`<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>`},
+  _default: {cor:'#9090a0',icon:`<circle cx='12' cy='12' r='1'/><circle cx='19' cy='12' r='1'/><circle cx='5' cy='12' r='1'/>`}
+};
+
+function getCatIcon(cat){
+  return CAT_ICONS[cat] || CAT_ICONS._default;
+}
+function getCatIconSVG(cat, size){
+  const {cor,icon} = getCatIcon(cat);
+  const s = size||14;
+  return `<svg width="${s}" height="${s}" fill="none" stroke="${cor}" stroke-width="2" viewBox="0 0 24 24">${icon}</svg>`;
+}
 // ── DASHBOARD ─────────────────────────────────────────────────
 function renderDash(){
   const tm = txsMes();
@@ -1893,79 +1925,119 @@ function renderRanking(cats,total){
 
 // ── TRANSAÇÕES ────────────────────────────────────────────────
 function renderTxs(){
-  const cat=document.getElementById('filtro-cat').value||'todas';
-  const pag=document.getElementById('filtro-pag').value||'todos';
-  const cartaoFiltro=document.getElementById('filtro-cartao')?.value||'todos';
-  const tm=txsMes();
+  const cat = document.getElementById('filtro-cat')?.value||'todas';
+  const pag = document.getElementById('filtro-pag')?.value||'todos';
+  const cartaoFiltro = document.getElementById('filtro-cartao')?.value||'todos';
+  const tm = txsMes();
+  const el = document.getElementById('tx-lista');
+  if(!el) return;
 
-  // Resumo por cartão
-  // Faturas por cartão cadastrado
-  const faturasPorCartao={};
-  tm.filter(t=>t.tipo==='despesa'&&t.cartao_id).forEach(t=>{
-    faturasPorCartao[t.cartao_id]=(faturasPorCartao[t.cartao_id]||0)+Number(t.valor);
-  });
-  const visaVal=tm.filter(t=>t.cartao==='visa_bradesco'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const masterVal=tm.filter(t=>t.cartao==='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const pixVal=tm.filter(t=>t.forma_pagamento==='pix'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const debVal=tm.filter(t=>t.forma_pagamento==='debito'&&t.cartao!=='visa_bradesco'&&t.cartao!=='master_nubank'&&t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
-  const resumoEl=document.getElementById('tx-cartao-resumo');
+  // Resumo do mês
+  const rec = tm.filter(t=>t.tipo==='receita').reduce((s,t)=>s+Number(t.valor),0);
+  const des = tm.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+Number(t.valor),0);
+  const resumoEl = document.getElementById('tx-resumo-top');
   if(resumoEl){
-    resumoEl.innerHTML=[
-      {label:'Visa Bradesco',val:visaVal,cor:'#5b9cf6',key:'visa_bradesco'},
-      {label:'Master Nubank',val:masterVal,cor:'#f96b6b',key:'master_nubank'},
-      {label:'PIX',val:pixVal,cor:'#2dd4a0',key:'pix_resumo'},
-    ].filter(r=>r.val>0).map(r=>`
-      <div onclick="filtrarCartao('${r.key}')" style="background:var(--bg2);border:1px solid ${cartaoFiltro===r.key||pag===r.key?r.cor:'var(--border)'};border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;transition:all .15s;flex:1;min-width:120px">
-        <div style="font-size:10px;color:${r.cor};margin-bottom:3px;font-weight:500">${r.label}</div>
-        <div style="font-size:15px;font-weight:600;font-family:'DM Mono',monospace">${fmt(r.val)}</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:1px">em despesas</div>
-      </div>`).join('');
+    resumoEl.innerHTML = `
+      <div class="tx-resumo-card">
+        <div class="tx-resumo-label">Entradas</div>
+        <div class="tx-resumo-val" style="color:var(--green)">+${fmt(rec)}</div>
+      </div>
+      <div class="tx-resumo-card">
+        <div class="tx-resumo-label">Despesas</div>
+        <div class="tx-resumo-val" style="color:var(--red)">-${fmt(des)}</div>
+      </div>`;
   }
 
-  let list=tm.filter(t=>{
-    const matchTipo=filtroTipo==='todos'||t.tipo===filtroTipo;
-    const matchCat=cat==='todas'||t.categoria===cat;
-    const matchPag=pag==='todos'||t.forma_pagamento===pag;
-    const matchCartao=cartaoFiltro==='todos'||
-      (cartaoFiltro==='visa_bradesco'&&t.cartao==='visa_bradesco')||
-      (cartaoFiltro==='master_nubank'&&t.cartao==='master_nubank')||
-      (cartaoFiltro==='pix_resumo'&&t.forma_pagamento==='pix');
-    return matchTipo&&matchCat&&matchPag&&matchCartao;
+  // Filtrar
+  let list = tm.filter(t=>{
+    const matchTipo = !filtroTipo || t.tipo===filtroTipo;
+    const matchCat = cat==='todas' || t.categoria===cat;
+    const matchPag = pag==='todos' || t.forma_pagamento===pag;
+    const matchCartao = cartaoFiltro==='todos' ||
+      (cartaoFiltro==='visa_bradesco'&&t.cartao==='visa_bradesco') ||
+      (cartaoFiltro==='master_nubank'&&t.cartao==='master_nubank') ||
+      (cartaoFiltro==='pix'&&t.forma_pagamento==='pix') ||
+      (String(t.cartao_id)===String(cartaoFiltro));
+    return matchTipo && matchCat && matchPag && matchCartao;
   });
+
+  if(!list.length){
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${getCatIconSVG('Outros',24)}</div>
+      <div class="empty-title">Nenhuma transação encontrada</div>
+      <div class="empty-sub">Tente mudar os filtros ou adicione uma nova transação.</div>
+      <button class="ob-btn" style="max-width:200px;padding:11px" onclick="abrirModal()">+ Adicionar</button>
+    </div>`;
+    return;
+  }
+
+  // Agrupar por data
+  const hoje = new Date();
+  const ontem = new Date(); ontem.setDate(ontem.getDate()-1);
+  const semanaPassada = new Date(); semanaPassada.setDate(semanaPassada.getDate()-7);
+
+  function getGrupo(dataStr){
+    const d = new Date(dataStr+'T00:00:00');
+    const dStr = d.toDateString();
+    if(dStr === hoje.toDateString()) return 'Hoje · '+d.getDate()+' '+MESES_S[d.getMonth()];
+    if(dStr === ontem.toDateString()) return 'Ontem · '+d.getDate()+' '+MESES_S[d.getMonth()];
+    if(d >= semanaPassada) return 'Esta semana';
+    return d.getDate()+' '+MESES_S[d.getMonth()]+' · '+d.toLocaleDateString('pt-BR',{weekday:'short'});
+  }
+
+  // Ordenar por data desc
   list.sort((a,b)=>new Date(b.data)-new Date(a.data));
-  const el=document.getElementById('tx-list');
-  if(!list.length){el.innerHTML=`<div class="empty-state">
-  <div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-  <div class="empty-title">Nenhuma transação ainda</div>
-  <div class="empty-sub">Adicione sua primeira receita ou despesa para começar a controlar suas finanças.</div>
-  <button class="ob-btn" style="max-width:200px;padding:11px" onclick="abrirModal()">+ Adicionar agora</button>
-</div>`;return;}
-  const pagLabel={pix:'PIX',debito:'Débito',credito:'Crédito'};
-  const cartaoLabel={visa_bradesco:'Visa Bradesco',master_nubank:'Master Nubank'};
-  const cartaoClass={visa_bradesco:'visa',master_nubank:'master'};
-  el.innerHTML=list.map(t=>`<div class="tx-item">
-    <div class="tx-icon" style="background:${t.tipo==='receita'?'rgba(45,212,160,0.12)':'rgba(249,107,107,0.12)'}">
-      <svg fill="none" stroke="${t.tipo==='receita'?'#2dd4a0':'#f96b6b'}" stroke-width="2.5" viewBox="0 0 24 24">${t.tipo==='receita'?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}</svg>
-    </div>
-    <div class="tx-info">
-      <div class="tx-desc">${t.descricao}${t.parcelas>1?` <span style="font-size:10px;color:var(--amber)">${t.parcela_atual}/${t.parcelas}x</span>`:''}</div>
-      <div class="tx-meta">
-        <span class="tx-badge" style="background:${(CORES[t.categoria]||'#888')}22;color:${CORES[t.categoria]||'#888'}">${t.categoria}</span>
-        <span class="tag ${t.forma_pagamento||'pix'}">${pagLabel[t.forma_pagamento]||'PIX'}</span>
-        ${t.cartao?`<span class="tag ${cartaoClass[t.cartao]||''}">${cartaoLabel[t.cartao]||''}</span>`:''}
-        ${new Date(t.data+'T00:00:00').toLocaleDateString('pt-BR')}
-      </div>
-    </div>
-    <div>
-      <div class="tx-amount ${t.tipo==='receita'?'green':'red'}">${t.tipo==='receita'?'+':'-'}${fmt(t.valor)}</div>
-      ${t.parcelas>1?`<div class="tx-amount-sub">${t.parcelas}x ${fmt(Number(t.valor))}</div>`:''}
-    </div>
-    <button class="tx-del" onclick="abrirEditTx(${t.id})" style="color:var(--text3);font-size:12px;padding:4px 6px" title="Editar">✎</button><button class="tx-del" onclick="delTx(${t.id})">✕</button>
-  </div>`).join('');
-  const sel=document.getElementById('filtro-cat');
-  const allCats=[...new Set(txsMes().map(t=>t.categoria))];
-  const cur=sel.value;
-  sel.innerHTML='<option value="todas">Todas categorias</option>'+allCats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+
+  // Agrupar
+  const grupos = {};
+  const ordemGrupos = [];
+  list.forEach(t=>{
+    const g = getGrupo(t.data);
+    if(!grupos[g]){ grupos[g]=[]; ordemGrupos.push(g); }
+    grupos[g].push(t);
+  });
+
+  // Renderizar
+  const FORMA_LABEL = {pix:'PIX',debito:'Débito',credito:'Crédito',dinheiro:'Dinheiro'};
+  
+  el.innerHTML = ordemGrupos.map(grupo=>{
+    const items = grupos[grupo];
+    return '<div class="tx-group">'
+      + '<div class="tx-group-label">'+grupo+'</div>'
+      + items.map(t=>{
+          const {cor, icon} = getCatIcon(t.categoria||'Outros');
+          const isRec = t.tipo==='receita';
+          const corValor = isRec ? 'var(--green)' : 'var(--red)';
+          const sinal = isRec ? '+' : '-';
+          const parc = t.parcelas>1 ? '<span class="tx-tag-parc">'+t.parcela_atual+'/'+t.parcelas+'x</span>' : '';
+          const cartaoNome = t.cartao_id ? (cartoes.find(ct=>ct.id===t.cartao_id)?.apelido||'') : '';
+          const formaPag = cartaoNome || FORMA_LABEL[t.forma_pagamento] || (t.forma_pagamento||'').toUpperCase();
+          
+          return '<div class="tx-item" onclick="abrirEditTx('+t.id+')">'
+            + '<div class="tx-icon" style="background:'+cor+'1a">'
+            + '<svg width="14" height="14" fill="none" stroke="'+cor+'" stroke-width="2" viewBox="0 0 24 24">'+icon+'</svg>'
+            + '</div>'
+            + '<div class="tx-info">'
+            + '<div class="tx-desc">'+t.descricao+'</div>'
+            + '<div class="tx-tags">'
+            + '<span class="tx-tag">'+((t.categoria)||'Outros')+'</span>'
+            + (formaPag?'<span class="tx-tag">'+formaPag+'</span>':'')
+            + parc
+            + '</div></div>'
+            + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">'
+            + '<div class="tx-val" style="color:'+corValor+'">'+sinal+''+fmt(t.valor)+'</div>'
+            + '</div>'
+            + '<div class="tx-actions">'
+            + '<button class="tx-del" onclick="event.stopPropagation();abrirEditTx('+t.id+')" title="Editar">✎</button>'
+            + '<button class="tx-del" onclick="event.stopPropagation();delTx('+t.id+')" title="Remover" style="color:var(--red)">✕</button>'
+            + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+
+  // Atualizar select de categorias
+  atualizaCats();
 }
 function filtrarCartao(key){
   const sel=document.getElementById('filtro-cartao');
