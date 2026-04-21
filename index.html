@@ -1950,14 +1950,13 @@ function renderTxs(){
 
   // Filtrar
   let list = tm.filter(t=>{
-    const matchTipo = !filtroTipo || t.tipo===filtroTipo;
+    const matchTipo = !filtroTipo || filtroTipo==='todos' || t.tipo===filtroTipo;
     const matchCat = cat==='todas' || t.categoria===cat;
     const matchPag = pag==='todos' || t.forma_pagamento===pag;
     const matchCartao = cartaoFiltro==='todos' ||
-      (cartaoFiltro==='visa_bradesco'&&t.cartao==='visa_bradesco') ||
-      (cartaoFiltro==='master_nubank'&&t.cartao==='master_nubank') ||
-      (cartaoFiltro==='pix'&&t.forma_pagamento==='pix') ||
-      (String(t.cartao_id)===String(cartaoFiltro));
+      String(t.cartao_id)===String(cartaoFiltro) ||
+      (cartaoFiltro==='visa_bradesco'&&(t.cartao==='visa_bradesco'||t.cartao_id===1)) ||
+      (cartaoFiltro==='master_nubank'&&(t.cartao==='master_nubank'||t.cartao_id===2));
     return matchTipo && matchCat && matchPag && matchCartao;
   });
 
@@ -3400,14 +3399,21 @@ function renderCartoes(){
 }
 
 function atualizaSelectCartoes(){
-  // Atualizar selects de cartão no modal de transação
   const opts = cartoes.length
-    ? '<option value="">Nenhum</option>' + cartoes.map(ct=>`<option value="${ct.id}">${ct.apelido}${ct.ultimos4?' ••'+ct.ultimos4:''}</option>`).join('')
+    ? '<option value="">Nenhum</option>' + cartoes.map(ct=>'<option value="'+ct.id+'">'+ct.apelido+(ct.ultimos4?' ••'+ct.ultimos4:'')+'</option>').join('')
     : '<option value="">Nenhum cartão cadastrado</option>';
   ['f-cartao','edit-cartao'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=opts;
   });
+  // Atualizar filtro de cartão nas transações
+  const filtroEl = document.getElementById('filtro-cartao');
+  if(filtroEl){
+    const cur = filtroEl.value;
+    filtroEl.innerHTML = '<option value="todos">Todos os cartões</option>'
+      + cartoes.map(ct=>'<option value="'+ct.id+'">'+ct.apelido+(ct.ultimos4?' ••'+ct.ultimos4:'')+'</option>').join('');
+    if(cur && filtroEl.querySelector('option[value="'+cur+'"]')) filtroEl.value = cur;
+  }
 }
 
 function selecionarCor(btn, cor){
