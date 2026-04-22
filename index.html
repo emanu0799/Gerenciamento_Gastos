@@ -204,6 +204,8 @@ select.form-input{height:42px}
 }
 /* ── MOBILE ─────────────────────────────────── */
 @media(max-width:768px){
+  /* Evita zoom automático do iOS ao focar em inputs */
+  input.form-input,select.form-input,textarea.form-input{font-size:16px}
   .sidebar{display:none}
   .main{margin-left:0;padding:12px 10px;padding-bottom:80px}
   /* iPhone safe area */
@@ -679,7 +681,7 @@ select.form-input{height:42px}
     </div>
   </div>
   <div class="page-header">
-    <div><div class="page-title">Investimentos</div><div class="page-sub">Acompanhe seu patrimônio</div></div>
+    <div><div class="page-title">Investimentos</div><div class="page-sub">Veja onde seu dinheiro está crescendo</div></div>
     <button class="topbar-btn" onclick="abrirModalInv()">+ Investimento</button>
   </div>
   <div class="cards" id="cards-inv" style="grid-template-columns:repeat(3,1fr)"></div>
@@ -1446,19 +1448,29 @@ async function carregarTudo(){
 }
 
 // ── NAV ───────────────────────────────────────────────────────
+let currentSection = 'dashboard';
 function setSection(sec){
+  currentSection = sec;
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
   const idx={dashboard:0,transacoes:1,investimentos:2,metas:3,alertas:4,cartoes:5,recorrentes:6,categorias:7,perfil:8,ia:9};
   document.querySelectorAll('.nav-item')[idx[sec]]?.classList.add('active');
-  // Mobile nav: dashboard=0, transacoes=1, metas=2, alertas=3, ia=4
   const mIdx={dashboard:0,transacoes:1,investimentos:2,metas:3};
   document.querySelectorAll('.mobile-nav-btn')[mIdx[sec]??4]?.classList.add('active');
-  // Scroll to top
   document.querySelector('.main')?.scrollTo(0,0);
   renderAll();
+}
+function fabAction(){
+  const acao={
+    transacoes: abrirModal,
+    investimentos: abrirModalInv,
+    metas: abrirModalMeta,
+    alertas: abrirModalAlerta,
+    recorrentes: abrirModalRecorrente,
+  };
+  (acao[currentSection]||abrirModal)();
 }
 function mudaMes(d){
   mesMes+=d;if(mesMes>11){mesMes=0;mesAno++;}if(mesMes<0){mesMes=11;mesAno--;}renderAll();
@@ -1611,8 +1623,8 @@ function renderDash(){
         icon: `<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
         cor: 'var(--purple)',
         bg: 'rgba(167,139,250,.12)',
-        titulo: 'Patrimônio líquido',
-        sub: 'saldo + investimentos − parcelas futuras',
+        titulo: 'O que você tem no total',
+        sub: 'saldo do mês + investimentos − parcelas futuras',
         valor: fmt(saldo + invTotal - totalProxParcelas),
         corValor: (saldo + invTotal - totalProxParcelas) >= 0 ? 'var(--green)' : 'var(--red)',
         onclick: null
@@ -1788,7 +1800,7 @@ function renderScore(taxa,alertasDisp,invTotal,metas){
     label:'Investimentos',
     ok:invTotal>500,
     val:invTotal>0?fmt(invTotal):'Nenhum ativo',
-    dica:invTotal<=0?'Comece a investir, mesmo que pouco':'Patrimônio investido',
+    dica:invTotal<=0?'Comece a investir, mesmo que pouco':'Dinheiro investido',
     cor:invTotal<=0?'var(--red)':invTotal<500?'var(--amber)':'var(--green)'
   });
 
@@ -2053,7 +2065,7 @@ function filtrarCartao(key){
   renderTxs();
 }
 
-function setFiltro(tipo,btn){filtroTipo=tipo;document.querySelectorAll('.tx-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTxs();}
+function setTxFiltro(tipo,btn){filtroTipo=tipo;document.querySelectorAll('.tx-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTxs();}
 async function delTx(id){
   if(!confirm('Remover esta transação?'))return;
   const {error}=await sb.from('transacoes').delete().eq('id',id);
@@ -2067,14 +2079,20 @@ async function atualizarCDIeRenderInv(){
   renderInv();
 }
 
+function calcSaldoProjetado(inv){
+  if(!inv.percentual_cdi||!cdiAtual) return null;
+  const taxaEfetiva=(inv.percentual_cdi/100)*cdiAtual;
+  const dias=Math.max(1,Math.round((new Date()-new Date(inv.data_inicio+'T00:00:00'))/(1000*60*60*24)));
+  return Number(inv.valor_aportado)*Math.pow(1+taxaEfetiva/100,dias/365);
+}
 function renderInv(){
   const totalAportado=investimentos.reduce((s,i)=>s+Number(i.valor_aportado),0);
-  const totalSaldo=investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
+  const totalSaldo=investimentos.reduce((s,i)=>s+(calcSaldoProjetado(i)||Number(i.saldo_atual)),0);
   const rentTotal=totalAportado>0?((totalSaldo-totalAportado)/totalAportado)*100:0;
   document.getElementById('cards-inv').innerHTML=`
-    <div class="card"><div class="card-label">Total aportado</div><div class="card-value">${fmt(totalAportado)}</div></div>
-    <div class="card"><div class="card-label">Patrimônio atual</div><div class="card-value" style="color:var(--purple)">${fmt(totalSaldo)}</div></div>
-    <div class="card"><div class="card-label">Rentabilidade total</div><div class="card-value ${rentTotal>=0?'green':'red'}">${fmtPct(rentTotal)}</div><div class="card-sub">${fmt(totalSaldo-totalAportado)}</div></div>
+    <div class="card"><div class="card-label">Total investido</div><div class="card-value">${fmt(totalAportado)}</div></div>
+    <div class="card"><div class="card-label">Saldo atual</div><div class="card-value" style="color:var(--purple)">${fmt(totalSaldo)}</div></div>
+    <div class="card"><div class="card-label">Rendimento total</div><div class="card-value ${rentTotal>=0?'green':'red'}">${fmtPct(rentTotal)}</div><div class="card-sub">${fmt(totalSaldo-totalAportado)}</div></div>
   `;
   const el=document.getElementById('inv-list');
   if(!investimentos.length){el.innerHTML=`<div class="empty-state">
@@ -2084,8 +2102,11 @@ function renderInv(){
   <button class="ob-btn" style="max-width:200px;padding:11px" onclick="abrirModalInv()">+ Adicionar investimento</button>
 </div>`;return;}
   el.innerHTML=investimentos.map(inv=>{
-    const rent=Number(inv.rentabilidade_percent)||0;
-    const lucro=Number(inv.saldo_atual)-Number(inv.valor_aportado);
+    const saldoProj=calcSaldoProjetado(inv);
+    const saldoExib=saldoProj!==null?saldoProj:Number(inv.saldo_atual);
+    const labelSaldo=saldoProj!==null?'Saldo projetado (CDI)':'Saldo atual';
+    const lucro=saldoExib-Number(inv.valor_aportado);
+    const rent=Number(inv.valor_aportado)>0?(lucro/Number(inv.valor_aportado))*100:0;
     const cor=INV_TIPOS_CORES[inv.tipo]||'#94a3b8';
     return`<div class="inv-item">
       <div class="inv-head">
@@ -2099,13 +2120,15 @@ function renderInv(){
         </div>
       </div>
       <div class="inv-values">
-        <div class="inv-val-item"><div class="inv-val-label">Aportado</div><div class="inv-val-num">${fmt(inv.valor_aportado)}</div></div>
-        <div class="inv-val-item"><div class="inv-val-label">Saldo atual</div><div class="inv-val-num" style="color:${cor}">${fmt(inv.saldo_atual)}</div></div>
-        <div class="inv-val-item"><div class="inv-val-label">Rentabilidade</div><div class="inv-val-num ${rent>=0?'green':'red'}">${fmtPct(rent)} <span style="font-size:11px">(${fmt(lucro)})</span></div></div>
+        <div class="inv-val-item"><div class="inv-val-label">Investido</div><div class="inv-val-num">${fmt(inv.valor_aportado)}</div></div>
+        <div class="inv-val-item"><div class="inv-val-label">${labelSaldo}</div><div class="inv-val-num" style="color:${cor}">${fmt(saldoExib)}</div></div>
+        <div class="inv-val-item"><div class="inv-val-label">Rendimento</div><div class="inv-val-num ${rent>=0?'green':'red'}">${fmtPct(rent)} <span style="font-size:11px">(${fmt(lucro)})</span></div></div>
       </div>
-      <div style="font-size:10px;color:var(--text3)">Desde ${new Date(inv.data_inicio+'T00:00:00').toLocaleDateString('pt-BR')}${inv.percentual_cdi?' · <span style="color:var(--amber)">'+inv.percentual_cdi+'% do CDI</span>':''}</div>
+      <div style="font-size:10px;color:var(--text3)">Desde ${new Date(inv.data_inicio+'T00:00:00').toLocaleDateString('pt-BR')}${inv.percentual_cdi?' · <span style="color:var(--amber)">'+inv.percentual_cdi+'% do CDI'+(cdiAtual?' · CDI='+cdiAtual.toFixed(2)+'%':'')+'</span>':''}</div>
     </div>`;
   }).join('');
+  // Se ainda não buscou o CDI, busca e re-renderiza
+  if(!cdiAtual&&investimentos.some(i=>i.percentual_cdi)) fetchCDI().then(()=>renderInv());
 }
 function abrirModalInv(){editInvId=null;document.getElementById('inv-modal-title').textContent='Novo investimento';document.getElementById('inv-nome').value='';document.getElementById('inv-tipo').value='CDB';document.getElementById('inv-aportado').value='';document.getElementById('inv-saldo').value='';document.getElementById('inv-data').value=new Date().toISOString().slice(0,10);document.getElementById('inv-cdi').value='';document.getElementById('cdi-info').style.display='none';document.getElementById('modal-inv').classList.add('open');setTimeout(aplicaMascaras,50);}
 function fecharModalInv(){document.getElementById('modal-inv').classList.remove('open');}
@@ -2178,7 +2201,7 @@ async function delMeta(id){
 }
 async function aportar(id){
   const v=parseBR(document.getElementById('ap-'+id).value);
-  if(!v||v<=0)return;
+  if(!v||v<=0){toast('Digite um valor para aportar','err');return;}
   const meta=metas.find(m=>m.id===id);
   const novoAtual=Math.min(Number(meta.alvo),Number(meta.atual)+v);
   const {error}=await sb.from('metas').update({atual:novoAtual}).eq('id',id);
@@ -2240,7 +2263,7 @@ function renderIAResumo(){
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
   const invTotal=investimentos.reduce((s,i)=>s+Number(i.saldo_atual),0);
   const rent=investimentos.reduce((s,i)=>s+Number(i.valor_aportado),0);
-  document.getElementById('ia-resumo').innerHTML=`Mês: <b>${MESES[mesMes]}/${mesAno}</b> · Receitas: <b style="color:var(--green)">${fmt(rec)}</b> · Despesas: <b style="color:var(--red)">${fmt(des)}</b> · Saldo: <b style="color:${sal>=0?'var(--green)':'var(--red)'}">${fmt(sal)}</b><br>Categorias: ${cats.map(([c,v])=>`<b>${c}</b> ${fmt(v)}`).join(' · ')||'—'}<br>Investimentos: patrimônio <b>${fmt(invTotal)}</b>, aportado <b>${fmt(rent)}</b><br>Metas: ${metas.map(m=>`<b>${m.nome}</b> ${Math.round((m.atual/m.alvo)*100)}%`).join(' · ')||'—'}`;
+  document.getElementById('ia-resumo').innerHTML=`Mês: <b>${MESES[mesMes]}/${mesAno}</b> · Receitas: <b style="color:var(--green)">${fmt(rec)}</b> · Despesas: <b style="color:var(--red)">${fmt(des)}</b> · Saldo: <b style="color:${sal>=0?'var(--green)':'var(--red)'}">${fmt(sal)}</b><br>Categorias: ${cats.map(([c,v])=>`<b>${c}</b> ${fmt(v)}`).join(' · ')||'—'}<br>Investimentos: total <b>${fmt(invTotal)}</b>, investido <b>${fmt(rent)}</b><br>Metas: ${metas.map(m=>`<b>${m.nome}</b> ${Math.round((m.atual/m.alvo)*100)}%`).join(' · ')||'—'}`;
 }
 async function perguntarIA(q){document.getElementById('ia-input').value=q;await _ia(q);}
 async function perguntarIAInput(){const q=document.getElementById('ia-input').value.trim();if(!q)return;await _ia(q);}
@@ -2409,14 +2432,7 @@ function renderAll(){
   renderDash();renderTxs();renderInv();renderMetas();renderAlertasConfig();renderIAResumo();
 }
 
-document.getElementById('modal-tx').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModal();});
-document.getElementById('modal-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalInv();});
-document.getElementById('modal-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalMeta();});
-document.getElementById('modal-alerta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalAlerta();});
-document.getElementById('modal-inv-update').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
-// Modais fecham apenas pelo botão X ou Cancelar
-document.getElementById('modal-edit-inv').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditInv();});
-document.getElementById('modal-edit-meta').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModalEditMeta();});
+// Modais fecham apenas pelo botão X ou Cancelar — sem fechar ao tocar fora
 
 
 // ── CDI BACEN ─────────────────────────────────────────────────
@@ -2672,8 +2688,8 @@ function exportarRelatorio(){
   ...investimentos.map(i=>`${i.nome.padEnd(25)} Aportado: ${fmt(i.valor_aportado)}  Atual: ${fmt(i.saldo_atual)}  Rent: ${Number(i.rentabilidade_percent)>=0?'+':''}${Number(i.rentabilidade_percent).toFixed(2)}%${i.percentual_cdi?' ('+i.percentual_cdi+'% CDI)':''}`),
   ``,
   `Total aportado:  ${fmt(invAportado)}`,
-  `Patrimônio atual:${fmt(invTotal)}`,
-  `Rentabilidade:   ${rentTotal>=0?'+':''}${rentTotal.toFixed(2)}% (${fmt(invTotal-invAportado)})`,
+  `Total investido: ${fmt(invTotal)}`,
+  `Rendimento:      ${rentTotal>=0?'+':''}${rentTotal.toFixed(2)}% (${fmt(invTotal-invAportado)})`,
 ]:['Nenhum investimento cadastrado']),
 ``,
 `METAS`,
@@ -2985,7 +3001,9 @@ function abrirModalRecorrente(){
   document.getElementById('rec-edit-id').value = '';
   document.getElementById('rec-desc').value = '';
   document.getElementById('rec-valor').value = '';
-  document.getElementById('rec-dia').value = '1';
+  const recDiaEl = document.getElementById('rec-dia');
+  recDiaEl.innerHTML = Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+  recDiaEl.value = '1';
   document.getElementById('rec-pag').value = 'pix';
   recTipoAtual = 'despesa';
   setRecTipo('despesa');
@@ -3005,7 +3023,9 @@ function editarRecorrente(id){
   document.getElementById('rec-edit-id').value = id;
   document.getElementById('rec-desc').value = r.descricao;
   document.getElementById('rec-valor').value = Number(r.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('rec-dia').value = r.dia_vencimento;
+  const dsSel = document.getElementById('rec-dia');
+  if(!dsSel.options.length) dsSel.innerHTML = Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+  dsSel.value = r.dia_vencimento;
   document.getElementById('rec-pag').value = r.forma_pagamento||'pix';
   recTipoAtual = r.tipo;
   setRecTipo(r.tipo);
@@ -3722,7 +3742,7 @@ function exportarPDF(){
       <div class="card green"><div class="card-label">Entradas</div><div class="card-value green">${fmt(rec)}</div></div>
       <div class="card red"><div class="card-label">Despesas</div><div class="card-value red">${fmt(des)}</div><div style="font-size:10px;color:#888;margin-top:2px">${taxa}% da renda</div></div>
       <div class="card ${sal>=0?'green':'red'}"><div class="card-label">Saldo</div><div class="card-value ${sal>=0?'green':'red'}">${fmt(sal)}</div></div>
-      <div class="card purple"><div class="card-label">Patrimônio invest.</div><div class="card-value purple">${fmt(invTotal)}</div></div>
+      <div class="card purple"><div class="card-label">Total investido</div><div class="card-value purple">${fmt(invTotal)}</div></div>
     </div>
   </div>
 
@@ -3786,7 +3806,7 @@ function exportarPDF(){
   ${investimentos.length?`<div class="section">
     <div class="section-title">Investimentos</div>
     <table>
-      <thead><tr><th>Nome</th><th>Tipo</th><th>Aportado</th><th>Saldo atual</th><th>Rentabilidade</th></tr></thead>
+      <thead><tr><th>Nome</th><th>Tipo</th><th>Investido</th><th>Saldo atual</th><th>Rendimento</th></tr></thead>
       <tbody>
         ${investimentos.map(i=>{
           const rent=Number(i.rentabilidade_percent)||0;
@@ -3883,7 +3903,7 @@ const OB_STEPS = [
   {
     icon: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 7 22 7 22 13" stroke="#0a1a14" stroke-width="2.5" stroke-linecap="round"/>',
     title: 'Acompanhe seus <span class="ob-highlight">investimentos</span>',
-    sub: 'Registre seus investimentos com rentabilidade automática via CDI do Banco Central. Seu patrimônio sempre atualizado.',
+    sub: 'Registre seus investimentos com rendimento automático via CDI do Banco Central. Seu dinheiro sempre atualizado.',
     btn: 'Próximo',
   },
   {
